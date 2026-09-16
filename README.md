@@ -97,7 +97,6 @@ ResolveHQ includes Socket.IO support for real-time communication and is structur
 ## Database
 
 * PostgreSQL
-* SQL
 * Foreign Keys
 * Composite Unique Constraints
 * Cascading Deletes
