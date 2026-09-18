@@ -1,16 +1,12 @@
 const app=require("./src/app")
 
-const {Server}=require("socket.io")
+const http = require("http");
+const { initSocket } = require("./src/socket");
 
-const http=require("http")
+const server = http.createServer(app);
+const io = initSocket(server);
+app.set("io", io);
 
-const server=http.createServer(app);
-
-const io=new Server(server)
-
-io.on("connection",(socket)=>{
-    console.log("Client Connected:",socket.id);
-});
 
 const pool=require("./src/db/pool")
 
