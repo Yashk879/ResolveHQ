@@ -92,6 +92,10 @@ export default function Login() {
             />
           </div>
 
+          <p style={{ marginBottom: "var(--space-4)" }}>
+            <Link to="/forgot-password" style={{ fontSize: 13 }}>Forgot password?</Link>
+          </p>
+
           {error && <p className="error-text" style={{ marginBottom: "var(--space-4)" }}>{error}</p>}
 
           <button type="submit" className="btn btn-primary" style={{ width: "100%" }} disabled={submitting}>

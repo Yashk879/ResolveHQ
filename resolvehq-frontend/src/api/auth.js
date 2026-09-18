@@ -15,3 +15,11 @@ export function logout() {
 export function getMe() {
   return api.get("/auth/me");
 }
+
+export function forgotPassword(email) {
+  return api.post("/auth/forgotPassword", { email });
+}
+
+export function resetPassword({ token, newPassword }) {
+  return api.post("/auth/resetPassword", { token, newPassword });
+}

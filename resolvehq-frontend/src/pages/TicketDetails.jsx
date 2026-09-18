@@ -7,6 +7,7 @@ import { listAgents } from "../api/agents.js";
 import { StatusBadge, PriorityBadge } from "../components/Badges.jsx";
 import Loading from "../components/Loading.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import { useSocket } from "../context/SocketContext.jsx";
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 const PRIORITY_OPTIONS = ["low", "medium", "high"];
@@ -26,6 +27,7 @@ export default function TicketDetails() {
   const navigate = useNavigate();
   const { agent } = useAuth();
   const { addToast } = useToast();
+  const { socket } = useSocket();
   const isAdmin = agent?.role === "admin";
 
   const [ticket, setTicket] = useState(null);
@@ -58,6 +60,44 @@ export default function TicketDetails() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    function handleTicketUpdated(updatedTicket) {
+      if (Number(updatedTicket.id) === Number(id)) {
+        setTicket((prev) => ({ ...prev, ...updatedTicket }));
+        addToast("Ticket details updated in real time.");
+      }
+    }
+
+    function handleTicketDeleted(data) {
+      if (Number(data.id) === Number(id)) {
+        addToast("This ticket was deleted.", "error");
+        navigate("/tickets", { replace: true });
+      }
+    }
+
+    function handleMessageCreated(reply) {
+      if (Number(reply.ticket_id) === Number(id)) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === reply.id)) return prev;
+          return [...prev, reply];
+        });
+        addToast("New reply received.");
+      }
+    }
+
+    socket.on("ticket:updated", handleTicketUpdated);
+    socket.on("ticket:deleted", handleTicketDeleted);
+    socket.on("message:created", handleMessageCreated);
+
+    return () => {
+      socket.off("ticket:updated", handleTicketUpdated);
+      socket.off("ticket:deleted", handleTicketDeleted);
+      socket.off("message:created", handleMessageCreated);
+    };
+  }, [socket, id, navigate, addToast]);
 
   if (loading) return <div className="content"><Loading label="Loading ticket…" /></div>;
   if (notFound) return <div className="content"><p>Ticket not found.</p></div>;
@@ -129,6 +169,12 @@ function TicketControls({ ticket, isAdmin, onUpdated, addToast }) {
   const [saving, setSaving] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    setStatus(ticket.status);
+    setPriority(ticket.priority);
+    setAssignTo(ticket.assigned_agent_id || "");
+  }, [ticket.status, ticket.priority, ticket.assigned_agent_id]);
 
   useEffect(() => {
     if (isAdmin) {
