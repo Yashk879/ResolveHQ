@@ -1,4 +1,5 @@
 const pool=require("../db/pool")
+const { emitTicketEvent } = require("../socket")
 
 async function replyTicket(req,res){
 
@@ -38,9 +39,12 @@ async function replyTicket(req,res){
             [ticketId,agentId,messages] 
         );
 
+        const reply = result.rows[0];
+        emitTicketEvent(companyId, "message:created", reply);
+
         return res.status(201).json({
             message:"Reply Added Successfully",
-            reply:result.rows[0]
+            reply:reply
         })
     }
     catch(err){
