@@ -1,4 +1,5 @@
 const pool=require("../db/pool")
+const { emitTicketEvent } = require("../socket")
 
 async function createTicket(req,res){
 
@@ -21,13 +22,16 @@ async function createTicket(req,res){
             values ($1,$2,$3,$4,$5,$6)
             returning id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at`,
             [
-                companyId,customerId,agentId,subject,description,priority || "medium"
+                companyId,customerId,agentId,subject,description,priority || "low"
             ]
         );
 
+        const newTicket = result.rows[0];
+        emitTicketEvent(companyId, "ticket:created", newTicket);
+
         return res.status(201).json({
             message:"Ticket Created Successfully",
-            ticket:result.rows[0]
+            ticket:newTicket
         })
     }
     
@@ -82,16 +86,19 @@ async function assignTicket(req,res){
         }
 
         const result=await pool.query(
-            `UPDATE tickets set assigned_agent_id=$1
+            `UPDATE tickets set assigned_agent_id=$1, updated_at=NOW()
             where id=$2
             and company_id=$3
-            returning id,company_id,assigned_agent_id`,
+            returning id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at`,
             [agentId,ticketId,companyId]
         );
 
+        const updatedTicket = result.rows[0];
+        emitTicketEvent(companyId, "ticket:updated", updatedTicket);
+
         return res.status(200).json({
             message:"Ticket Assigned Succesfully",
-            ticket:result.rows[0]
+            ticket:updatedTicket
         });
     }
 
@@ -501,13 +508,16 @@ async function updateTicket(req,res){
             updated_at=NOW()
             where id=$3
             and company_id=$4
-            returning id,company_id,assigned_agent_id,status,priority,updated_at`,
+            returning id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at`,
             [status,priority,ticketId,companyId]
         );
 
+        const updatedTicket = result.rows[0];
+        emitTicketEvent(companyId, "ticket:updated", updatedTicket);
+
         return res.status(200).json({
             message:"Ticket Updated Successfully",
-            ticket:result.rows[0]
+            ticket:updatedTicket
         })
     }
 
@@ -541,9 +551,12 @@ async function deleteTicket(req,res){
             })
         }
 
+        const deletedId = result.rows[0].id;
+        emitTicketEvent(companyId, "ticket:deleted", { id: Number(deletedId), company_id: companyId });
+
         return res.status(200).json({
             message:"Ticket Deleted Successfully",
-            id:result.rows[0].id
+            id:deletedId
         })
     }
     catch(err){
