@@ -112,6 +112,51 @@ textarea:focus-visible {
 }
 
 /* ---------------------------------------------
+   Hero / marketing backgrounds
+   Original gradient + dot-grid artwork in the app's own palette,
+   rather than stock photography — keeps things license-free and
+   avoids the generic "smiling headset agent" SaaS cliché.
+   --------------------------------------------- */
+.hero-bg {
+  position: relative;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(217, 142, 39, 0.22), transparent 42%),
+    radial-gradient(circle at 88% 82%, rgba(46, 90, 172, 0.4), transparent 48%),
+    linear-gradient(135deg, #1b2430 0%, #202b3b 45%, #24447f 100%);
+  color: #fff;
+  overflow: hidden;
+}
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.hero-bg > * {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+}
+
+.auth-card {
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: 0 20px 60px rgba(15, 20, 30, 0.35);
+  padding: var(--space-6);
+  width: 100%;
+  max-width: 380px;
+}
+
+/* ---------------------------------------------
    Layout shell
    --------------------------------------------- */
 .app-shell {
@@ -158,19 +203,24 @@ textarea:focus-visible {
 .panel {
   background: var(--color-surface);
   border: 1px solid var(--color-steel-light);
-  border-radius: var(--radius);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(27, 36, 48, 0.04);
 }
 
 .btn {
   border: 1px solid var(--color-steel);
   background: var(--color-surface);
   color: var(--color-slate);
-  padding: 8px 14px;
-  border-radius: var(--radius);
+  padding: 9px 16px;
+  border-radius: 6px;
   font-weight: 500;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
 }
 .btn:hover {
   border-color: var(--color-slate-muted);
+}
+.btn:active {
+  transform: translateY(1px);
 }
 .btn:disabled {
   opacity: 0.5;
@@ -178,12 +228,13 @@ textarea:focus-visible {
 }
 
 .btn-primary {
-  background: var(--color-signal);
-  border-color: var(--color-signal);
+  background: linear-gradient(135deg, var(--color-signal), var(--color-signal-dark));
+  border-color: var(--color-signal-dark);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(46, 90, 172, 0.35);
 }
 .btn-primary:hover {
-  background: var(--color-signal-dark);
+  background: linear-gradient(135deg, var(--color-signal-dark), var(--color-signal-dark));
   border-color: var(--color-signal-dark);
 }
 
@@ -297,6 +348,117 @@ tr:hover td {
 
 .table-scroll {
   overflow-x: auto;
+}
+
+/* ---------------------------------------------
+   Home / marketing page
+   --------------------------------------------- */
+.home-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+}
+
+.home-nav .brand {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.home-hero {
+  padding: var(--space-7) var(--space-6) var(--space-7);
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.home-hero h1 {
+  color: #fff;
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-4);
+}
+
+.home-hero p {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 16px;
+  margin-bottom: var(--space-6);
+}
+
+.home-hero .cta-row {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-lg {
+  padding: 13px 26px;
+  font-size: 15px;
+  border-radius: 8px;
+}
+
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+  padding: var(--space-7) var(--space-6);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  padding: var(--space-5);
+  text-align: left;
+}
+
+.feature-card .feature-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--color-paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+  font-size: 16px;
+}
+
+.feature-card h3 {
+  margin-bottom: var(--space-2);
+}
+
+.feature-card p {
+  color: var(--color-slate-muted);
+  font-size: 13px;
+}
+
+.home-footer {
+  text-align: center;
+  padding: var(--space-6);
+  color: var(--color-slate-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-hero h1 {
+    font-size: 28px;
+  }
 }
 
 @media (max-width: 768px) {

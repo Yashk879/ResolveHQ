@@ -4,6 +4,7 @@ import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";
+import Home from "./pages/Home.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Tickets from "./pages/Tickets.jsx";
 import TicketDetails from "./pages/TicketDetails.jsx";
@@ -108,8 +109,8 @@ export default function App() {
         }
       />
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<Home />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

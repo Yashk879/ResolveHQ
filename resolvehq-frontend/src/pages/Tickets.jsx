@@ -4,7 +4,6 @@ import { listCustomers } from "../api/customers.js";
 import TicketList from "../components/TicketList.jsx";
 import Loading from "../components/Loading.jsx";
 import { useToast } from "../context/ToastContext.jsx";
-import { useSocket } from "../context/SocketContext.jsx";
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 const PRIORITY_OPTIONS = ["low", "medium", "high"];
@@ -22,9 +21,6 @@ export default function Tickets() {
   const [page, setPage] = useState(1);
 
   const [showCreate, setShowCreate] = useState(false);
-  const { socket } = useSocket();
-  const { addToast } = useToast();
-
 
   useEffect(() => {
     let cancelled = false;
@@ -54,63 +50,6 @@ export default function Tickets() {
       cancelled = true;
     };
   }, [status, priority, search, page]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    function handleTicketCreated(newTicket) {
-      const matchesStatus = !status || newTicket.status === status;
-      const matchesPriority = !priority || newTicket.priority === priority;
-      const matchesSearch =
-        !search ||
-        (newTicket.subject &&
-          newTicket.subject.toLowerCase().includes(search.toLowerCase()));
-
-      if (matchesStatus && matchesPriority && matchesSearch) {
-        setTickets((prev) => {
-          if (prev.some((t) => t.id === newTicket.id)) return prev;
-          return [newTicket, ...prev];
-        });
-      }
-      addToast(`New ticket: "${newTicket.subject}"`);
-    }
-
-    function handleTicketUpdated(updatedTicket) {
-      setTickets((prev) => {
-        const exists = prev.some((t) => t.id === updatedTicket.id);
-        if (!exists) return prev;
-
-        const matchesStatus = !status || updatedTicket.status === status;
-        const matchesPriority = !priority || updatedTicket.priority === priority;
-        const matchesSearch =
-          !search ||
-          (updatedTicket.subject &&
-            updatedTicket.subject.toLowerCase().includes(search.toLowerCase()));
-
-        if (!matchesStatus || !matchesPriority || !matchesSearch) {
-          return prev.filter((t) => t.id !== updatedTicket.id);
-        }
-
-        return prev.map((t) =>
-          t.id === updatedTicket.id ? { ...t, ...updatedTicket } : t
-        );
-      });
-    }
-
-    function handleTicketDeleted(data) {
-      setTickets((prev) => prev.filter((t) => t.id !== Number(data.id)));
-    }
-
-    socket.on("ticket:created", handleTicketCreated);
-    socket.on("ticket:updated", handleTicketUpdated);
-    socket.on("ticket:deleted", handleTicketDeleted);
-
-    return () => {
-      socket.off("ticket:created", handleTicketCreated);
-      socket.off("ticket:updated", handleTicketUpdated);
-      socket.off("ticket:deleted", handleTicketDeleted);
-    };
-  }, [socket, status, priority, search, addToast]);
 
   function handleSearchSubmit(e) {
     e.preventDefault();

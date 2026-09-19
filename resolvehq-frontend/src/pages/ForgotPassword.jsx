@@ -32,16 +32,8 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--color-paper)",
-      }}
-    >
-      <div className="panel" style={{ width: 360, padding: "var(--space-6)" }}>
+    <div className="hero-bg auth-page">
+      <div className="auth-card">
         <h1 style={{ marginBottom: "var(--space-1)" }}>Reset your password</h1>
         <p style={{ color: "var(--color-slate-muted)", marginBottom: "var(--space-5)" }}>
           Enter your email and we'll send you a reset link.

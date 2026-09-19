@@ -15,7 +15,7 @@ const api = axios.create({
 // the password reset flow) must be excluded here — otherwise the /me
 // check that AuthContext runs on every page load would 401 on these pages
 // and force-redirect away before the person can use them.
-const PUBLIC_PATHS = ["/login", "/signup", "/forgot-password", "/reset-password"];
+const PUBLIC_PATHS = ["/", "/login", "/signup", "/forgot-password", "/reset-password"];
 
 api.interceptors.response.use(
   (response) => response,

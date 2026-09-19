@@ -42,16 +42,8 @@ export default function Login() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--color-paper)",
-      }}
-    >
-      <div className="panel" style={{ width: 360, padding: "var(--space-6)" }}>
+    <div className="hero-bg auth-page">
+      <div className="auth-card">
         <h1 style={{ marginBottom: "var(--space-1)" }}>Log in</h1>
         <p style={{ color: "var(--color-slate-muted)", marginBottom: "var(--space-5)" }}>
           Sign in to your ResolveHQ workspace.
@@ -105,6 +97,9 @@ export default function Login() {
 
         <p style={{ marginTop: "var(--space-5)", fontSize: 13, color: "var(--color-slate-muted)" }}>
           Don't have a workspace? <Link to="/signup">Create one</Link>
+        </p>
+        <p style={{ marginTop: "var(--space-2)", fontSize: 13, color: "var(--color-slate-muted)" }}>
+          <Link to="/">← Back to home</Link>
         </p>
       </div>
     </div>

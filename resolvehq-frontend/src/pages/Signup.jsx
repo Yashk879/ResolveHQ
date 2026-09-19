@@ -43,16 +43,8 @@ export default function Signup() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--color-paper)",
-      }}
-    >
-      <div className="panel" style={{ width: 380, padding: "var(--space-6)" }}>
+    <div className="hero-bg auth-page">
+      <div className="auth-card" style={{ maxWidth: 420 }}>
         <h1 style={{ marginBottom: "var(--space-1)" }}>Create your workspace</h1>
         <p style={{ color: "var(--color-slate-muted)", marginBottom: "var(--space-5)" }}>
           This creates a company and your admin account.
@@ -104,6 +96,9 @@ export default function Signup() {
 
         <p style={{ marginTop: "var(--space-5)", fontSize: 13, color: "var(--color-slate-muted)" }}>
           Already have an account? <Link to="/login">Log in</Link>
+        </p>
+        <p style={{ marginTop: "var(--space-2)", fontSize: 13, color: "var(--color-slate-muted)" }}>
+          <Link to="/">← Back to home</Link>
         </p>
       </div>
     </div>

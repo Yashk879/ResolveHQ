@@ -28,7 +28,7 @@ export default function Navbar({ onMenuClick }) {
       <button className="menu-toggle btn" onClick={onMenuClick} aria-label="Open menu">
         ☰
       </button>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", marginLeft: "auto" }}>
         <span style={{ color: "var(--color-slate-muted)", fontSize: 13 }}>{label}</span>
         <button className="btn" onClick={handleLogout} disabled={loggingOut}>
           {loggingOut ? "Logging out…" : "Log out"}

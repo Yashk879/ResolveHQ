@@ -1,7 +1,6 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useSocket } from "../context/SocketContext.jsx";
 import { getAdminStats, getAgentStats } from "../api/stats.js";
 import { listTickets } from "../api/tickets.js";
 import TicketList from "../components/TicketList.jsx";
@@ -17,7 +16,6 @@ const STAT_FIELDS = [
 
 export default function Dashboard() {
   const { agent } = useAuth();
-  const { socket } = useSocket();
   const isAdmin = agent?.role === "admin";
 
   const [stats, setStats] = useState(null);
@@ -25,46 +23,33 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const load = useCallback(async (isBackground = false) => {
-    if (!isBackground) setLoading(true);
-    setError("");
-    try {
-      const [statsRes, ticketsRes] = await Promise.all([
-        isAdmin ? getAdminStats() : getAgentStats(),
-        listTickets({ limit: 5, page: 1 }),
-      ]);
-      setStats(statsRes.data);
-      setRecentTickets(ticketsRes.data.tickets || []);
-    } catch (err) {
-      if (!isBackground) setError("Couldn't load dashboard data. Please try refreshing.");
-    } finally {
-      if (!isBackground) setLoading(false);
-    }
-  }, [isAdmin]);
-
   useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        const [statsRes, ticketsRes] = await Promise.all([
+          isAdmin ? getAdminStats() : getAgentStats(),
+          listTickets({ limit: 5, page: 1 }),
+        ]);
+        if (cancelled) return;
+        setStats(statsRes.data);
+        setRecentTickets(ticketsRes.data.tickets || []);
+      } catch (err) {
+        if (cancelled) return;
+        setError("Couldn't load dashboard data. Please try refreshing.");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
     load();
-  }, [load]);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    function handleRealtimeUpdate() {
-      // Reload in background without unmounting/flashing loading spinner
-      load(true);
-    }
-
-    socket.on("ticket:created", handleRealtimeUpdate);
-    socket.on("ticket:updated", handleRealtimeUpdate);
-    socket.on("ticket:deleted", handleRealtimeUpdate);
-
     return () => {
-      socket.off("ticket:created", handleRealtimeUpdate);
-      socket.off("ticket:updated", handleRealtimeUpdate);
-      socket.off("ticket:deleted", handleRealtimeUpdate);
+      cancelled = true;
     };
-  }, [socket, load]);
-
+  }, [isAdmin]);
 
   return (
     <div className="content">
