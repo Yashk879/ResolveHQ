@@ -8,6 +8,6 @@ const requireCustomerLogin=require("../middlewares/requireCustomerLogin")
 
 router.post("/tickets",requireCustomerLogin,createOwnTicket)
 
-router.post("/tickets",requireCustomerLogin,listOwnTickets)
+router.get("/tickets",requireCustomerLogin,listOwnTickets)
 
 module.exports=router
