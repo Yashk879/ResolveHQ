@@ -2,7 +2,7 @@ const pool = require("../db/pool");
 
 async function createCustomers(req, res) {
 
-    const { name, email } = req.body;
+    const { name, email ,} = req.body;
 
     const companyId = req.user.companyId;
 
@@ -63,20 +63,32 @@ async function listCustomers(req,res){
 
         if(search){
             result=await pool.query(
-                `SELECT id,company_id,name,email,created_at
-                from customers
-                where company_id=$1
-                and (name ILIKE $2 OR EMAIL ILIKE $2)
-                ordere by id`,
+                `SELECT c.id,c.company_id,c.name,c.email,c.created_at,t.subject as problem
+                from customers c
+                left join lateral(
+                select subject from tickets
+                where tickets.customer_id=c.id
+                order by created_at desc
+                limit 1)
+                t on true
+                where c.company_id=$1
+                and (c.name ILIKE $2 OR c.email ILIKE $2)
+                order by c.id`,
                 [companyId,`%${search}%`]
             )
         }
         else{
             result=await pool.query(
-                `SELECT id,company_id,name,email,created_at
-                from customers
-                where company_id=$1
-                order by id`,
+                `SELECT c.id,c.company_id,c.name,c.email,c.created_at,
+                t.subject as problem from customers c
+                left join lateral(
+                select subject from tickets
+                where tickets.customer_id=c.id
+                order by created_at desc
+                limit 1)
+                t on true
+                where c.company_id=$1
+                order by c.id`,
                 [companyId]
             )
         }
@@ -128,47 +140,49 @@ async function getCustomerById(req,res){
     }
 }
 
-
-
-async function allCustomers(req, res) {
-
-    const companyId = req.user.companyId;
-
-    try {
-
-        const result = await pool.query(
-            `SELECT
-                id,
-                company_id,
-                name,
-                email,
-                created_at
-             FROM customers
-             WHERE company_id=$1
-             ORDER BY id DESC`,
-            [companyId]
+async function getCustomerTickets(req,res){
+ 
+    const customerId=req.params.id;
+ 
+    const companyId=req.user.companyId;
+ 
+    try{
+        const customerResult=await pool.query(
+            `SELECT id from customers
+            where id=$1
+            and company_id=$2`,
+            [customerId,companyId]
         );
-
+ 
+        if(customerResult.rows.length===0){
+            return res.status(404).json({
+                message:"Customer Not Found"
+            });
+        }
+ 
+        const result=await pool.query(
+            `SELECT id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at
+            from tickets
+            where customer_id=$1
+            and company_id=$2
+            order by created_at desc`,
+            [customerId,companyId]
+        );
+ 
         return res.status(200).json({
-            message: "Customers Fetched Successfully",
-            customers: result.rows
+            tickets:result.rows
         });
-
     }
-
-    catch (err) {
-
+    catch(err){
         console.error(err);
-
+ 
         return res.status(500).json({
-            message: "Internal Server Error"
-        });
-
+            message:"Internal Server Error"
+        })
     }
 }
 
-
 module.exports = {
     createCustomers,
-    listCustomers,getCustomerById,allCustomers
+    listCustomers,getCustomerById,getCustomerTickets
 };

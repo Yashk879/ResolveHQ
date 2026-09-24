@@ -19,6 +19,8 @@ Create table customers(
     company_id integer not null references Companies(id) on delete cascade,
     name varchar(200) not null,
     email varchar(200) not null,
+    password_hash text,
+    problem varchar(200) not null,
     created_at timestamp default CURRENT_TIMESTAMP,
     unique(company_id,email)
 );

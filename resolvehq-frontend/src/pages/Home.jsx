@@ -43,12 +43,11 @@ export default function Home() {
         <div className="home-hero">
           <h1>Customer support, without the chaos.</h1>
           <p>
-           ResolveHQ is a multi-tenant customer support platform built for businesses to 
-           streamline ticket management, customer communication, and support operations 
-            through a centralized, role-based system.
+            ResolveHQ is a straightforward helpdesk for small support teams — tickets, customers,
+            and agents in one place, with clean role-based access and nothing you don't need.
           </p>
           <div className="cta-row">
-            <Link to="/login" className="btn btn-primary btn-lg">Raise a ticket</Link>
+            <Link to="/customer/login" className="btn btn-primary btn-lg">Raise a ticket</Link>
             <Link to="/signup" className="btn btn-ghost btn-lg">Start a workspace</Link>
           </div>
         </div>

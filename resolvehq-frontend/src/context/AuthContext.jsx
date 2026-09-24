@@ -3,21 +3,17 @@ import * as authApi from "../api/auth.js";
 
 const AuthContext = createContext(null);
 
-// NOTE on a backend quirk: GET /api/auth/me only returns the raw JWT
-// payload — { agentId, companyId, role } — it does NOT include name or
-// email. So on a fresh page load (no login just happened in this tab),
-// we only know the agent's id/companyId/role, not their name/email.
-// Full profile info (name, email) is only available right after a
-// successful login response, so components should tolerate `name`/
-// `email` being undefined until then.
+// GET /api/auth/me now looks up the full agent record from the DB (not
+// just the JWT payload), so name/email are available on every session
+// check, not only right after login.
 
 function normalizeFromMe(user) {
   return {
     id: user.agentId,
     companyId: user.companyId,
     role: user.role,
-    name: undefined,
-    email: undefined,
+    name: user.name,
+    email: user.email,
   };
 }
 

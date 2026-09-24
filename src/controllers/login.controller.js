@@ -56,7 +56,7 @@ async function login(req,res){
             companyId:agent.company_id,
             role:agent.role
         },process.env.JWT_SECRET,{
-            expiresIn:"1d"
+            expiresIn:"30m"
         });
 
         res.cookie("token",token,{
@@ -91,9 +91,28 @@ async function getMe(req, res) {
 
     try {
 
+        const result=await pool.query(
+            `SELECT id,company_id,name,email,role from agents where id=$1`,
+            [req.user.agentId]
+        )
+
+        if(result.rows.length===0){
+            return res.status(401).json({
+                message:"Invalid Session"
+            })
+        }
+
+        const agent=result.rows[0];
+
         return res.status(200).json({
             message: "User authenticated",
-            user: req.user
+            user:{
+                agentId:agent.id,
+                companyId:agent.company_id,
+                name:agent.name,
+                email:agent.email,
+                role:agent.role
+            }
         });
 
     }
@@ -168,9 +187,9 @@ async function forgotPassword(req,res){
             await transporter.sendMail({
                 from:process.env.GMAIL_USER,
                 to:email,
-                subject:"Reset Your Paasword",
+                subject:"Reset Your Password",
                 html: `<p>Hi ${agent.name},</p>
-                        <p>Click the link below to reset your ResolveHQ password. This link expires in 1 hour.</p>
+                        <p>Click the link below to reset your ResolveHQ Password. This link expires in 1 hour.</p>
                         <p><a href="${resetLink}">${resetLink}</a></p>
                         <p>If you didn't request this, you can safely ignore this email.</p>`
             })

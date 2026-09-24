@@ -90,16 +90,20 @@ export default function Customers() {
             <table>
               <thead>
                 <tr>
+                  <th>ID</th>
                   <th>Name</th>
                   <th>Email</th>
+                  <th>Problem</th>
                   <th>Added</th>
                 </tr>
               </thead>
               <tbody>
                 {customers.map((c) => (
                   <tr key={c.id}>
+                    <td className="mono">#{c.id}</td>
                     <td><Link to={`/customers/${c.id}`}>{c.name}</Link></td>
                     <td>{c.email}</td>
+                    <td>{c.problem || <span style={{ color: "var(--color-slate-muted)" }}>No tickets yet</span>}</td>
                     <td className="mono">{formatDate(c.created_at)}</td>
                   </tr>
                 ))}

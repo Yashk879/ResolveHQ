@@ -258,6 +258,7 @@ textarea:focus-visible {
   border-radius: var(--radius);
   padding: 8px 10px;
   background: var(--color-surface);
+  color: var(--color-slate);
 }
 
 .error-text {

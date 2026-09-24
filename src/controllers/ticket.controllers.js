@@ -259,7 +259,7 @@ async function listTickets(req,res){
 
     else{
         result=await pool.query(
-            `SELECT id,company_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at
+            `SELECT id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at
             from tickets
             where company_id=$1
             order by created_at desc

@@ -16,6 +16,12 @@ const agentsRouter=require("./routes/agents.routes")
 
 const statsRouter=require("./routes/stats.routes")
 
+const companyRoutes=require("./routes/company.routes")
+
+const customerAuthRoutes=require("./routes/customerAuth.routes")
+
+const customerPortalRoutes=require("./routes/customerPortal.routes")
+
 const app=express();
 
 app.use(cors({
@@ -38,5 +44,11 @@ app.use("/api/response",messageRoutes)
 app.use("/api/agents",agentsRouter)
 
 app.use("/api/stats",statsRouter)
+
+app.use("/api/companies",companyRoutes)
+
+app.use("/api/customer-auth",customerAuthRoutes)
+
+app.use("/api/customer-portal",customerPortalRoutes)
 
 module.exports=app;

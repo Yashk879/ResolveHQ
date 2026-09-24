@@ -11,11 +11,16 @@ import TicketDetails from "./pages/TicketDetails.jsx";
 import Customers from "./pages/Customers.jsx";
 import CustomerDetails from "./pages/CustomerDetails.jsx";
 import Agents from "./pages/Agents.jsx";
+import CustomerSignup from "./pages/CustomerSignup.jsx";
+import CustomerLogin from "./pages/CustomerLogin.jsx";
+import CustomerPortal from "./pages/CustomerPortal.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import CustomerProtectedRoute from "./components/CustomerProtectedRoute.jsx";
 import Loading from "./components/Loading.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
+import { useCustomerAuth } from "./context/CustomerAuthContext.jsx";
 
 // Keeps an already-logged-in agent from landing back on /login or /signup
 // (e.g. hitting back button after signing in).
@@ -23,6 +28,14 @@ function GuestRoute({ children }) {
   const { status } = useAuth();
   if (status === "checking") return <Loading label="Checking session…" />;
   if (status === "authenticated") return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+// Same idea, but for the customer-facing login/signup pages.
+function CustomerGuestRoute({ children }) {
+  const { status } = useCustomerAuth();
+  if (status === "checking") return <Loading label="Checking session…" />;
+  if (status === "authenticated") return <Navigate to="/customer/portal" replace />;
   return children;
 }
 
@@ -106,6 +119,17 @@ export default function App() {
               <Agents />
             </AppShell>
           </ProtectedRoute>
+        }
+      />
+
+      <Route path="/customer/signup" element={<CustomerGuestRoute><CustomerSignup /></CustomerGuestRoute>} />
+      <Route path="/customer/login" element={<CustomerGuestRoute><CustomerLogin /></CustomerGuestRoute>} />
+      <Route
+        path="/customer/portal"
+        element={
+          <CustomerProtectedRoute>
+            <CustomerPortal />
+          </CustomerProtectedRoute>
         }
       />
 
