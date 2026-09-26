@@ -1,7 +1,20 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import * as customerAuthApi from "../api/customerAuth.js";
+import { connectSocket, disconnectSocket } from "../socket.js";
 
 const CustomerAuthContext = createContext(null);
+
+// getCustomerMe returns the raw DB row (company_id, snake_case);
+// customerLogin returns companyId (camelCase). Normalize both to the
+// same shape so the rest of the app never has to care which one ran.
+function normalize(customer) {
+  return {
+    id: customer.id,
+    companyId: customer.companyId ?? customer.company_id,
+    name: customer.name,
+    email: customer.email,
+  };
+}
 
 export function CustomerAuthProvider({ children }) {
   const [customer, setCustomer] = useState(null);
@@ -10,8 +23,10 @@ export function CustomerAuthProvider({ children }) {
   const checkSession = useCallback(async () => {
     try {
       const res = await customerAuthApi.getCustomerMe();
-      setCustomer(res.data.customer);
+      const normalized = normalize(res.data.customer);
+      setCustomer(normalized);
       setStatus("authenticated");
+      connectSocket(normalized.companyId);
     } catch {
       setCustomer(null);
       setStatus("unauthenticated");
@@ -24,8 +39,10 @@ export function CustomerAuthProvider({ children }) {
 
   async function login(credentials) {
     const res = await customerAuthApi.customerLogin(credentials);
-    setCustomer(res.data.customer);
+    const normalized = normalize(res.data.customer);
+    setCustomer(normalized);
     setStatus("authenticated");
+    connectSocket(normalized.companyId);
     return res.data;
   }
 
@@ -35,6 +52,7 @@ export function CustomerAuthProvider({ children }) {
     } finally {
       setCustomer(null);
       setStatus("unauthenticated");
+      disconnectSocket();
     }
   }
 

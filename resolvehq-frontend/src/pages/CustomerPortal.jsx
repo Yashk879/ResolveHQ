@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
 import { createOwnTicket, listOwnTickets } from "../api/customerPortal.js";
 import { StatusBadge, PriorityBadge } from "../components/Badges.jsx";
@@ -49,7 +49,9 @@ export default function CustomerPortal() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-paper)" }}>
       <header className="topbar">
-        <div style={{ fontWeight: 600 }}>ResolveHQ Support</div>
+        <Link to="/customer/portal" style={{ fontWeight: 600, color: "inherit", textDecoration: "none" }}>
+          ResolveHQ Support
+        </Link>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", marginLeft: "auto" }}>
           <span style={{ color: "var(--color-slate-muted)", fontSize: 13 }}>{customer?.name}</span>
           <button className="btn" onClick={handleLogout} disabled={loggingOut}>
@@ -98,7 +100,7 @@ export default function CustomerPortal() {
                   <tbody>
                     {tickets.map((t) => (
                       <tr key={t.id}>
-                        <td>{t.subject}</td>
+                        <td><Link to={`/customer/portal/tickets/${t.id}`}>{t.subject}</Link></td>
                         <td><StatusBadge status={t.status} /></td>
                         <td><PriorityBadge priority={t.priority} /></td>
                         <td className="mono">{formatDate(t.created_at)}</td>

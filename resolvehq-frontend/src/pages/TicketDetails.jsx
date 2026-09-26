@@ -7,6 +7,7 @@ import { listAgents } from "../api/agents.js";
 import { StatusBadge, PriorityBadge } from "../components/Badges.jsx";
 import Loading from "../components/Loading.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import { socket } from "../socket.js";
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 const PRIORITY_OPTIONS = ["low", "medium", "high"];
@@ -58,6 +59,23 @@ export default function TicketDetails() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Live updates: a message sent by either side (agent reply or customer
+  // reply) broadcasts "ticket:message" to the whole company. Only append
+  // it if it's for the ticket currently open, and skip it if we already
+  // have that message (e.g. our own reply already landed via the normal
+  // load() call right after sending).
+  useEffect(() => {
+    function handleNewMessage({ ticketId, message }) {
+      if (String(ticketId) !== String(id)) return;
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === message.id)) return prev;
+        return [...prev, message];
+      });
+    }
+    socket.on("ticket:message", handleNewMessage);
+    return () => socket.off("ticket:message", handleNewMessage);
+  }, [id]);
 
   if (loading) return <div className="content"><Loading label="Loading ticket…" /></div>;
   if (notFound) return <div className="content"><p>Ticket not found.</p></div>;
@@ -249,14 +267,23 @@ function ConversationPanel({ ticketId, messages, canReply, onSent, addToast }) {
         {messages.length === 0 && (
           <p style={{ color: "var(--color-slate-muted)" }}>No replies yet.</p>
         )}
-        {messages.map((m) => (
-          <div key={m.id} style={{ borderLeft: "2px solid var(--color-steel)", paddingLeft: "var(--space-3)" }}>
-            <div className="mono" style={{ fontSize: 12, color: "var(--color-slate-muted)", marginBottom: "var(--space-1)" }}>
-              Agent #{m.sender_agent_id} · {formatDateTime(m.created_at)}
+        {messages.map((m) => {
+          const fromCustomer = m.sender_customer_id != null;
+          return (
+            <div
+              key={m.id}
+              style={{
+                borderLeft: `2px solid ${fromCustomer ? "var(--color-amber)" : "var(--color-steel)"}`,
+                paddingLeft: "var(--space-3)",
+              }}
+            >
+              <div className="mono" style={{ fontSize: 12, color: "var(--color-slate-muted)", marginBottom: "var(--space-1)" }}>
+                {fromCustomer ? "Customer" : `Agent #${m.sender_agent_id}`} · {formatDateTime(m.created_at)}
+              </div>
+              <p>{m.messages}</p>
             </div>
-            <p>{m.messages}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {canReply ? (

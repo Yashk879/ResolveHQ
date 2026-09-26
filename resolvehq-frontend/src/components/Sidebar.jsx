@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Sidebar({ open, onNavigate }) {
@@ -18,9 +18,13 @@ export default function Sidebar({ open, onNavigate }) {
     <>
       {open && <div className="sidebar-backdrop" onClick={onNavigate} />}
       <aside className={`sidebar${open ? " open" : ""}`}>
-        <div style={{ padding: "var(--space-5) var(--space-4)", fontWeight: 600, color: "#fff" }}>
+        <Link
+          to="/dashboard"
+          onClick={onNavigate}
+          style={{ padding: "var(--space-5) var(--space-4)", fontWeight: 600, color: "#fff", textDecoration: "none" }}
+        >
           ResolveHQ
-        </div>
+        </Link>
         <nav style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)", padding: "0 var(--space-3)" }}>
           {links.map((link) => (
             <NavLink

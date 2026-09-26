@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import * as authApi from "../api/auth.js";
+import { connectSocket, disconnectSocket } from "../socket.js";
 
 const AuthContext = createContext(null);
 
@@ -34,8 +35,10 @@ export function AuthProvider({ children }) {
   const checkSession = useCallback(async () => {
     try {
       const res = await authApi.getMe();
-      setAgent(normalizeFromMe(res.data.user));
+      const normalized = normalizeFromMe(res.data.user);
+      setAgent(normalized);
       setStatus("authenticated");
+      connectSocket(normalized.companyId);
     } catch {
       setAgent(null);
       setStatus("unauthenticated");
@@ -48,8 +51,10 @@ export function AuthProvider({ children }) {
 
   async function login(credentials) {
     const res = await authApi.login(credentials);
-    setAgent(normalizeFromLogin(res.data.agent));
+    const normalized = normalizeFromLogin(res.data.agent);
+    setAgent(normalized);
     setStatus("authenticated");
+    connectSocket(normalized.companyId);
     return res.data;
   }
 
@@ -59,6 +64,7 @@ export function AuthProvider({ children }) {
     } finally {
       setAgent(null);
       setStatus("unauthenticated");
+      disconnectSocket();
     }
   }
 

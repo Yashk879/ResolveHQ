@@ -39,12 +39,12 @@ async function replyTicket(req,res){
             [ticketId,agentId,messages] 
         );
 
-        const reply = result.rows[0];
-        emitTicketEvent(companyId, "message:created", reply);
+         const newMessage = result.rows[0];
+    emitTicketEvent(companyId, "ticket:message", { ticketId: Number(ticketId), message: newMessage });
 
         return res.status(201).json({
             message:"Reply Added Successfully",
-            reply:reply
+            reply:newMessage
         })
     }
     catch(err){
@@ -77,8 +77,13 @@ async function allTickets(req,res){
         }
 
         const result=await pool.query(
-            `Select id,ticket_id,sender_agent_id,messages,created_at from messages
-            where ticket_id=$1
+            `Select m.id,m.ticket_id,m.sender_agent_id,m.messages,m.created_at, a.name as agent_name,c.name as customer_name from messages m
+            left join agents a
+            on
+            m.sender_agent_id=a.id
+            left join customers c
+            on m.sender_customer_id=c.id
+            where m.ticket_id=$1
             order by created_at ASC`,
             [ticketId]
         );

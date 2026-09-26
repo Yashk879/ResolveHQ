@@ -61,8 +61,7 @@ export default function CustomerLogin() {
           <div className="field">
             <label htmlFor="company">Company</label>
             <select id="company" value={companyId} onChange={(e) => setCompanyId(e.target.value)}>
-              <option value="">Select a Company
-</option>
+              <option value="">Which company are you contacting?</option>
               {companies.map((c) => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}

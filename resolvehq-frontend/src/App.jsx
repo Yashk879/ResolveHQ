@@ -14,6 +14,7 @@ import Agents from "./pages/Agents.jsx";
 import CustomerSignup from "./pages/CustomerSignup.jsx";
 import CustomerLogin from "./pages/CustomerLogin.jsx";
 import CustomerPortal from "./pages/CustomerPortal.jsx";
+import CustomerTicketDetails from "./pages/CustomerTicketDetails.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import Navbar from "./components/Navbar.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
@@ -129,6 +130,14 @@ export default function App() {
         element={
           <CustomerProtectedRoute>
             <CustomerPortal />
+          </CustomerProtectedRoute>
+        }
+      />
+      <Route
+        path="/customer/portal/tickets/:id"
+        element={
+          <CustomerProtectedRoute>
+            <CustomerTicketDetails />
           </CustomerProtectedRoute>
         }
       />
