@@ -8,13 +8,7 @@ const crypto=require("crypto")
 
 const nodemailer=require("nodemailer")
 
-const transporter=nodemailer.createTransport({
-    service:"gmail",
-    auth:{
-        user:process.env.GMAIL_USER,
-        pass:process.env.GMAIL_APP_PASSWORD
-    }
-});
+const {sendMail}=require("../utils/mailer")
 
 async function login(req,res){
 
@@ -171,7 +165,7 @@ async function forgotPassword(req,res){
  
         const tokenHash=crypto.createHash("sha256").update(rawToken).digest("hex");
  
-        const expiry=new Date(Date.now()+60*60*1000);
+        const expiry=new Date(Date.now()+10*60*1000);
 
         await pool.query(
             `update agents
@@ -184,20 +178,28 @@ async function forgotPassword(req,res){
         const resetLink=`${process.env.FRONTEND_URL}/reset-password?token=${rawToken}`;
 
         try{
-            await transporter.sendMail({
-                from:process.env.GMAIL_USER,
-                to:email,
-                subject:"Reset Your Password",
-                html: `<p>Hi ${agent.name},</p>
-                        <p>Click the link below to reset your ResolveHQ Password. This link expires in 1 hour.</p>
+            await sendMail(
+                email,
+                "Reset Your Password",
+                `
+                <div>
+                <img src="${process.env.FRONTEND_URL}/favicon.png"
+                alt="ResolevHQ"
+                width="150"
+                />
+                <p>Hi ${agent.name},</p>
+                        <p>Click the link below to reset your ResolveHQ Password.
+                        This link expires in 1 hour.</p>
                         <p><a href="${resetLink}">${resetLink}</a></p>
-                        <p>If you didn't request this, you can safely ignore this email.</p>`
-            })
+                        <p>If you didn't request this, you can safely ignore this email.</p>
+                        </div>`
+            )
         }
         catch(emailErr){
             console.error("Failed To Send Email: ",emailErr);
         }
     }
+
     return res.status(200).json({
         message:"If an account with that email exists, a reset link has been sent."
     })

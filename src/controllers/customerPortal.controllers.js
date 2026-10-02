@@ -1,6 +1,7 @@
 const pool=require("../db/pool")
 
 const { emitTicketEvent } = require("../socket")
+const { sendMail } = require("../utils/mailer")
 
 async function createOwnTicket(req,res){
 
@@ -24,10 +25,34 @@ async function createOwnTicket(req,res){
             [companyId,customerId,null,subject,description,priority || "low"]
         )
 
+        const newTicket=result.rows[0]
+
+        emitTicketEvent(companyId,"ticket:created",newTicket)
+
+        const customerResult=await pool.query(
+            `SELECT name,email from customers where id=$1`,
+            [customerId]
+        )
+
+        if(customerResult.rows.length>0){
+            const customerInfo=customerResult.rows[0]
+
+            await sendMail(
+                customerInfo.email,
+                "A new Ticket has been raised - ResolveHQ",
+                `
+                <p>Hi ${customerInfo.name},</p>
+                <p>We've received your ticket <strong>"${newTicket.subject}"
+                </strong> and our team will get back to you soon.</p>
+                <p>You can track its status by logging into your ResolveHQ portal.</p>
+                <p>Thank You</p>`
+            )
+        }
         return res.status(201).json({
             message:"Ticket Submitted Successfully",
-            ticket:result.rows[0]
+            ticket:newTicket
         })
+
     }
     
     catch(err){

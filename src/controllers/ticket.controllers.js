@@ -1,4 +1,5 @@
 const pool=require("../db/pool")
+const {sendMail}=require("../utils/mailer")
 const { emitTicketEvent } = require("../socket")
 
 async function createTicket(req,res){
@@ -59,7 +60,7 @@ async function assignTicket(req,res){
         }
 
         const ticketResult=await pool.query(
-            `Select id
+            `Select id,subject
             from tickets
             where id=$1 and
             company_id=$2`,
@@ -72,8 +73,10 @@ async function assignTicket(req,res){
             });
         }
 
+        const ticket=ticketResult.rows[0]
+
         const agentResult=await pool.query(
-            `SELECT id from agents
+            `SELECT id,name,email from agents
             where id=$1
             and company_id=$2`,
             [agentId,companyId]
@@ -85,6 +88,8 @@ async function assignTicket(req,res){
             });
         }
 
+        const agentInfo=agentResult.rows[0]
+
         const result=await pool.query(
             `UPDATE tickets set assigned_agent_id=$1, updated_at=NOW()
             where id=$2
@@ -95,6 +100,17 @@ async function assignTicket(req,res){
 
         const updatedTicket = result.rows[0];
         emitTicketEvent(companyId, "ticket:updated", updatedTicket);
+
+        await sendMail(
+            agentInfo.email,
+            "A new Ticket has been assigned to you - ResolveHQ",
+            `
+             <p>Hi ${agentInfo.name},</p>
+            <p>The ticket <strong>"${ticket.subject}"
+            </strong> has been assigned to you.</p>
+            <p>Log in to ResolveHQ to view and respond to it.</p>
+            `
+        )
 
         return res.status(200).json({
             message:"Ticket Assigned Succesfully",

@@ -80,7 +80,7 @@ a {
   text-decoration: none;
 }
 a:hover {
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 button,
@@ -377,7 +377,7 @@ tr:hover td {
 .home-hero h1 {
   color: #fff;
   font-size: 40px;
-  line-height: 1.15;
+  line-height: 1.25;
   letter-spacing: -0.02em;
   margin-bottom: var(--space-4);
 }
@@ -487,4 +487,218 @@ tr:hover td {
     flex-wrap: wrap;
     gap: var(--space-4) var(--space-6) !important;
   }
+}
+
+/* ---------------------------------------------
+   Contact button
+   --------------------------------------------- */
+
+.contact-btn {
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+
+  padding: 9px 16px;
+  border-radius: 6px;
+
+  cursor: pointer;
+  text-decoration: none;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.05s ease;
+}
+
+.contact-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+}
+
+.contact-btn:active {
+  transform: translateY(1px);
+}
+
+
+/* ---------------------------------------------
+   Contact modal overlay
+   --------------------------------------------- */
+
+.contact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: var(--space-5);
+
+  background: rgba(27, 36, 48, 0.6);
+
+  backdrop-filter: blur(4px);
+}
+
+
+/* ---------------------------------------------
+   Contact modal
+   --------------------------------------------- */
+
+.contact-modal {
+  width: 100%;
+  max-width: 500px;
+
+  max-height: 90vh;
+  overflow-y: auto;
+
+  background: var(--color-surface);
+
+  border-radius: 10px;
+
+  padding: var(--space-6);
+
+  box-shadow: 0 20px 60px rgba(15, 20, 30, 0.35);
+
+  animation: contactModalIn 0.18s ease-out;
+}
+
+
+/* ---------------------------------------------
+   Modal header
+   --------------------------------------------- */
+
+.contact-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: var(--space-4);
+
+  margin-bottom: var(--space-5);
+}
+
+.contact-modal-header h2 {
+  font-size: 20px;
+  margin-bottom: var(--space-1);
+}
+
+.contact-modal-header p {
+  color: var(--color-slate-muted);
+  font-size: 13px;
+}
+
+
+/* ---------------------------------------------
+   Close button
+   --------------------------------------------- */
+
+.contact-close {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--color-signal-dark);
+  border-radius: 6px;
+
+  background: var(--color-signal);
+  color: #fff;
+
+  font-size: 22px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+
+.contact-close:hover {
+  background: var(--color-signal-dark);
+  border-color: var(--color-signal-dark);
+}
+
+
+/* ---------------------------------------------
+   Contact form
+   --------------------------------------------- */
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form .field {
+  margin-bottom: var(--space-4);
+}
+
+.contact-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+
+/* ---------------------------------------------
+   Submit button
+   --------------------------------------------- */
+
+.contact-submit {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+
+/* ---------------------------------------------
+   Modal animation
+   --------------------------------------------- */
+
+@keyframes contactModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* ---------------------------------------------
+   Mobile
+   --------------------------------------------- */
+
+@media (max-width: 600px) {
+  .contact-overlay {
+    padding: var(--space-4);
+  }
+
+  .contact-modal {
+    padding: var(--space-5);
+  }
+}
+
+.contact-status {
+  margin-bottom: var(--space-4);
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--color-paper);
+  color: var(--color-slate);
+  font-size: 13px;
+}
+
+.contact-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

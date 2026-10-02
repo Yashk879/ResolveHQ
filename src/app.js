@@ -22,6 +22,8 @@ const customerAuthRoutes=require("./routes/customerAuth.routes")
 
 const customerPortalRoutes=require("./routes/customerPortal.routes")
 
+const contactMailRoutes=require("./routes/contactMail.routes")
+
 const app=express();
 
 app.use(cors({
@@ -50,5 +52,7 @@ app.use("/api/companies",companyRoutes)
 app.use("/api/customer-auth",customerAuthRoutes)
 
 app.use("/api/customer-portal",customerPortalRoutes)
+
+app.use("/api/contact",contactMailRoutes)
 
 module.exports=app;
