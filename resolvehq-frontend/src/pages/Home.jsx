@@ -1,22 +1,23 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import ShinyText from "../components/ShinyText";
 
 const FEATURES = [
   {
     icon: "🎫",
     title: "One queue, every ticket",
-    text: "Every customer issue lands in a single, filterable queue — searchable by status, priority, or subject.",
+    text: "Every customer issue lands in one clear, searchable queue. Filter by status, priority, or subject and stay organized.",
   },
   {
     icon: "🏢",
     title: "Built for multiple teams",
-    text: "Each company's tickets, customers, and agents are fully isolated — your data never mixes with anyone else's.",
+    text: "Keep companies, customers, agents, and tickets properly separated with role-based access and tenant isolation.",
   },
   {
     icon: "⚡",
     title: "Fast triage",
-    text: "Assign, reprioritize, and reply without leaving the ticket — status changes reflect immediately for the whole team.",
+    text: "Assign, reprioritize, update status, and reply without jumping between different screens.",
   },
 ];
 
@@ -74,7 +75,7 @@ export default function Home() {
       }
 
       setContactStatus(
-        "Message sent successfully! We'll get back to you soon."
+        "Message sent successfully!"
       );
 
       setContactForm({
@@ -84,7 +85,6 @@ export default function Home() {
         message: "",
       });
 
-      // Close modal after 1 second
       setTimeout(() => {
         setShowContact(false);
         setContactStatus("");
@@ -102,25 +102,27 @@ export default function Home() {
   }
 
   function closeContactModal() {
+    if (contactLoading) return;
+
     setShowContact(false);
     setContactStatus("");
   }
 
   return (
-    <div>
-      {/* HERO */}
-      <div className="hero-bg">
-        <nav className="home-nav">
-          <span className="brand">ResolveHQ</span>
+    <div className="landing-page">
 
-          <div
-            style={{
-              display: "flex",
-              gap: "var(--space-3)",
-              alignItems: "center",
-            }}
-          >
-            {/* Authentication buttons */}
+      {/* =========================
+          HERO
+      ========================== */}
+
+      <section className="hero-bg">
+
+        {/* NAVBAR */}
+
+        <nav className="home-nav">
+
+          <div className="nav-actions">
+
             {isAuthenticated ? (
               <Link
                 to="/dashboard"
@@ -146,7 +148,6 @@ export default function Home() {
               </>
             )}
 
-            {/* Contact button - LAST */}
             <button
               type="button"
               className="contact-btn"
@@ -154,27 +155,67 @@ export default function Home() {
             >
               Contact
             </button>
+
           </div>
+
         </nav>
 
+
+        {/* HERO CONTENT */}
+
         <div className="home-hero">
+
+          {/* Small status badge */}
+
+          {/* <div className="hero-badge">
+            <span className="hero-badge-dot"></span>
+            Simple support. Better organized.
+          </div> */}
+
+
+          {/* Main brand */}
+
+          <ShinyText
+            text="ResolveHQ"
+            className="hero-brand"
+            speed={2}
+            delay={1}
+            color="#ffffff"
+            shineColor="#8db5ff"
+            spread={120}
+            direction="left"
+            yoyo={false}
+            pauseOnHover={false}
+          />
+
+
+          {/* Main heading */}
+
           <h1>
-            Customer support, without the chaos.
+            Customer support, 
+            without the chaos.
           </h1>
 
-          <p>
-            ResolveHQ is a straightforward helpdesk for
-            small support teams — tickets, customers, and
-            agents in one place, with clean role-based
-            access and nothing you don't need.
+
+          {/* Description */}
+
+          <p className="hero-description">
+            A straightforward helpdesk for small support
+            teams — bringing tickets, customers, and agents
+            together in one organized workspace.
           </p>
 
+
+          {/* CTA */}
+
           <div className="cta-row">
+
             <Link
               to="/customer/login"
               className="btn btn-primary btn-lg"
             >
               Raise a ticket
+              <span className="btn-arrow">→</span>
             </Link>
 
             <Link
@@ -183,53 +224,159 @@ export default function Home() {
             >
               Start a workspace
             </Link>
+
           </div>
+
+
+          {/* Trust line */}
+
+          <div className="hero-note">
+            No complicated setup · Role-based access ·
+            Built for focused support teams
+          </div>
+
         </div>
-      </div>
 
-      {/* FEATURES */}
-      <div className="feature-grid">
-        {FEATURES.map((f) => (
-          <div
-            key={f.title}
-            className="panel feature-card"
-          >
-            <div className="feature-icon">
-              {f.icon}
+      </section>
+
+
+      {/* =========================
+          FEATURES
+      ========================== */}
+
+      <section className="features-section">
+
+        <div className="features-header">
+
+          <span className="section-label">
+            Why ResolveHQ
+          </span>
+
+          <h2>
+            Everything your support team needs.
+          </h2>
+
+          <p>
+            Keep your workflow simple, organized, and
+            focused on resolving customer issues.
+          </p>
+
+        </div>
+
+
+        <div className="feature-grid">
+
+          {FEATURES.map((feature) => (
+            <div
+              key={feature.title}
+              className="panel feature-card"
+            >
+
+              <div className="feature-icon">
+                {feature.icon}
+              </div>
+
+              <h3>
+                {feature.title}
+              </h3>
+
+              <p>
+                {feature.text}
+              </p>
+
             </div>
+          ))}
 
-            <h3>{f.title}</h3>
+        </div>
 
-            <p>{f.text}</p>
-          </div>
-        ))}
-      </div>
+      </section>
 
-      {/* FOOTER */}
+
+      {/* =========================
+          SIMPLE CTA
+      ========================== */}
+
+      <section className="bottom-cta">
+
+        <div>
+
+          <span className="section-label">
+            GET STARTED
+          </span>
+
+          <h2>
+            Ready to simplify your support?
+          </h2>
+
+          <p>
+            Create your workspace and start managing
+            customer issues in one place.
+          </p>
+
+        </div>
+
+        <Link
+          to="/signup"
+          className="btn btn-primary btn-lg"
+        >
+          Create workspace
+          <span className="btn-arrow">→</span>
+        </Link>
+
+      </section>
+
+
+      {/* =========================
+          FOOTER
+      ========================== */}
+
       <footer className="home-footer">
-        ResolveHQ — built to simplify customer support and
-        keep every issue on track.
+
+        <span>
+          ResolveHQ
+        </span>
+
+        <p>
+          Built to simplify customer support and keep
+          every issue on track.
+        </p>
+
       </footer>
 
-      {/* CONTACT MODAL */}
+
+      {/* =========================
+          CONTACT MODAL
+      ========================== */}
+
       {showContact && (
+
         <div
           className="contact-overlay"
           onClick={closeContactModal}
         >
+
           <div
             className="contact-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
+
             <div className="contact-modal-header">
+
               <div>
-                <h2>Contact ResolveHQ</h2>
+
+                <span className="section-label">
+                  GET IN TOUCH
+                </span>
+
+                <h2>
+                  Contact ResolveHQ
+                </h2>
 
                 <p>
-                  Have a question? We'd love to hear from
-                  you.
+                  Have a question? We'd love to hear
+                  from you.
                 </p>
+
               </div>
 
               <button
@@ -240,15 +387,17 @@ export default function Home() {
               >
                 ×
               </button>
+
             </div>
 
-            {/* Contact Form */}
+
             <form
               className="contact-form"
               onSubmit={handleContactSubmit}
             >
-              {/* Name */}
+
               <div className="field">
+
                 <label htmlFor="contact-name">
                   Name
                 </label>
@@ -262,10 +411,12 @@ export default function Home() {
                   placeholder="Enter your name"
                   required
                 />
+
               </div>
 
-              {/* Email */}
+
               <div className="field">
+
                 <label htmlFor="contact-email">
                   Email
                 </label>
@@ -276,13 +427,15 @@ export default function Home() {
                   type="email"
                   value={contactForm.email}
                   onChange={handleContactChange}
-                  placeholder="Enter your Gmail"
+                  placeholder="Enter your email"
                   required
                 />
+
               </div>
 
-              {/* Subject */}
+
               <div className="field">
+
                 <label htmlFor="contact-subject">
                   Subject
                 </label>
@@ -296,10 +449,12 @@ export default function Home() {
                   placeholder="What is this regarding?"
                   required
                 />
+
               </div>
 
-              {/* Message */}
+
               <div className="field">
+
                 <label htmlFor="contact-message">
                   Message
                 </label>
@@ -313,14 +468,16 @@ export default function Home() {
                   placeholder="Tell us how we can help..."
                   required
                 />
+
               </div>
 
-              {/* Status */}
+
               {contactStatus && (
                 <p className="contact-status">
                   {contactStatus}
                 </p>
               )}
+
 
               <button
                 type="submit"
@@ -331,10 +488,15 @@ export default function Home() {
                   ? "Sending..."
                   : "Send Message"}
               </button>
+
             </form>
+
           </div>
+
         </div>
+
       )}
+
     </div>
   );
 }
