@@ -1,7 +1,5 @@
 const pool=require("../db/pool");
 
-const jwt=require("jsonwebtoken");
-
 const bcrypt=require("bcrypt");
 
 async function CompanySignup(req,res){
