@@ -36,7 +36,7 @@ async function customerSignup(req,res){
                 `update customers 
                 set password_hash=$1,name=$2
                 where id=$3
-                rerturning id,company_id,name,email,created_at`,
+                returning id,company_id,name,email,created_at`,
                 [passwordHash,name,customer.id]
             )
 

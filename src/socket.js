@@ -1,56 +1,123 @@
+
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 
 let io = null;
 
+function parseCookies(cookieHeader = "") {
+  const cookies = {};
+
+  for (const part of cookieHeader.split(";")) {
+    const separator = part.indexOf("=");
+
+    if (separator === -1) continue;
+
+    const name = part.slice(0, separator).trim();
+    const value = part.slice(separator + 1).trim();
+
+    try {
+      cookies[name] = decodeURIComponent(value);
+    } catch {
+      cookies[name] = value;
+    }
+  }
+
+  return cookies;
+}
+
+function authenticateSocket(socket, next) {
+  try {
+    if (!process.env.JWT_SECRET) {
+      return next(new Error("Socket authentication is not configured"));
+    }
+
+    const cookies = parseCookies(socket.handshake.headers.cookie);
+
+    // Determine the session type from the cookie used.
+    const isAgent = Boolean(cookies.token);
+    const token = isAgent ? cookies.token : cookies.customer_token;
+
+    if (!token) {
+      return next(new Error("Authentication required"));
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded.companyId) {
+      return next(new Error("Invalid authentication token"));
+    }
+
+    if (isAgent) {
+      if (!decoded.agentId || !decoded.role) {
+        return next(new Error("Invalid agent session"));
+      }
+
+      socket.data.user = {
+        type: "agent",
+        agentId: String(decoded.agentId),
+        companyId: String(decoded.companyId),
+        role: decoded.role,
+      };
+    } else {
+      if (
+        decoded.type !== "customer" ||
+        !decoded.customerId
+      ) {
+        return next(new Error("Invalid customer session"));
+      }
+
+      socket.data.user = {
+        type: "customer",
+        customerId: String(decoded.customerId),
+        companyId: String(decoded.companyId),
+      };
+    }
+
+    return next();
+  } catch {
+    return next(new Error("Invalid or expired authentication token"));
+  }
+}
+
 function initSocket(server) {
+  const frontendUrl =
+    process.env.FRONTEND_URL || "http://localhost:5173";
+
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      origin: [
+        "http://localhost:5173",
+        frontendUrl,
+      ],
       credentials: true,
-      methods: ["GET", "POST", "PATCH", "DELETE"],
+      methods: ["GET", "POST"],
     },
   });
 
+  io.use(authenticateSocket);
+
   io.on("connection", (socket) => {
-    console.log("Client connected to socket:", socket.id);
+    const user = socket.data.user;
 
-    // Auto-join company room if companyId passed in handshake query
-    const queryCompanyId = socket.handshake.query?.companyId;
-    if (queryCompanyId) {
-      const room = `company_${queryCompanyId}`;
-      socket.join(room);
-      console.log(`Socket ${socket.id} joined room ${room} via query`);
+    console.log(
+      `Authenticated ${user.type} socket connected:`,
+      socket.id
+    );
+
+    // Only agents may join company-wide ticket and message events.
+    if (user.type === "agent") {
+      socket.join(`company_${user.companyId}`);
     }
 
-    // Try extracting and verifying token from cookie
-    const cookieHeader = socket.handshake.headers.cookie;
-    if (cookieHeader && process.env.JWT_SECRET) {
-      const match = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
-      if (match) {
-        try {
-          const decoded = jwt.verify(match[1], process.env.JWT_SECRET);
-          if (decoded && decoded.companyId) {
-            socket.join(`company_${decoded.companyId}`);
-            console.log(`Socket ${socket.id} joined room company_${decoded.companyId} via cookie`);
-          }
-        } catch (e) {
-          // Token expired or invalid, ignore
-        }
-      }
-    }
+    socket.on("join:company", () => {
+      // Never let a customer join a company-wide event room.
+      if (user.type !== "agent") return;
 
-    // Allow client to explicitly join company room
-    socket.on("join:company", (companyId) => {
-      if (companyId) {
-        const room = `company_${companyId}`;
-        socket.join(room);
-        console.log(`Socket ${socket.id} joined room ${room} via event`);
-      }
+      socket.join(`company_${user.companyId}`);
     });
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected from socket:", socket.id);
+      console.log("Socket disconnected:", socket.id);
     });
   });
 
@@ -62,12 +129,10 @@ function getIO() {
 }
 
 function emitTicketEvent(companyId, event, data) {
-  if (!io) return;
-  if (companyId) {
-    io.to(`company_${companyId}`).emit(event, data);
-  } else {
-    io.emit(event, data);
-  }
+  if (!io || !companyId) return;
+
+  // Company-wide events are received only by authenticated agents.
+  io.to(`company_${companyId}`).emit(event, data);
 }
 
 module.exports = {

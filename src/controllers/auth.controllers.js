@@ -14,7 +14,7 @@ async function CompanySignup(req,res){
         }
 
         const existingUser=await pool.query(
-            "SELECT id FROM agents WHERE email = $1",
+            "SELECT id FROM agents WHERE email=$1",
             [email]
         );
 
@@ -33,7 +33,7 @@ async function CompanySignup(req,res){
             const companyResult=await client.query(
                 `INSERT INTO companies (name)
                  VALUES ($1)
-                 RETURNING id, name`,
+                 RETURNING id,name`,
                 [companyName]
             );
 
@@ -41,9 +41,9 @@ async function CompanySignup(req,res){
 
             const agentResult=await client.query(
                 `INSERT INTO agents
-                 (company_id, name, email, password_hash, role)
-                 VALUES ($1, $2, $3, $4, $5)
-                 RETURNING id, company_id, name, email, role`,
+                 (company_id,name,email,password_hash,role)
+                 VALUES ($1,$2,$3,$4,$5)
+                 RETURNING id, company_id,name,email,role`,
                 [
                     company.id,
                     name,
@@ -75,7 +75,7 @@ async function CompanySignup(req,res){
     catch(err){
         console.error(err);
         return res.status(500).json({
-            message: "Server Error"
+            message:"Server Error"
         });
     }
 }

@@ -1,24 +1,26 @@
-const app=require("./src/app")
+require("dotenv").config();
 
+const app = require("./src/app");
 const http = require("http");
 const { initSocket } = require("./src/socket");
+const pool = require("./src/db/pool");
 
 const server = http.createServer(app);
 const io = initSocket(server);
+
 app.set("io", io);
 
+const PORT = process.env.PORT || 3000;
 
-const pool=require("./src/db/pool")
-
-pool.query("SELECT NOW()",(err,result)=>{
-    if(err){
-        console.error("Database Connection Failed: ",err);
-        return;
+pool.query("SELECT NOW()", (err, result) => {
+    if (err) {
+        console.error("Database Connection Failed:", err);
+        process.exit(1);
     }
 
-    console.log("Database Connected:",result.rows[0]);
+    console.log("Database Connected:", result.rows[0]);
 
-    server.listen(3000,()=>{
-        console.log("Server Running on Port 3000");
+    server.listen(PORT, "0.0.0.0", () => {
+        console.log(`Server Running on Port ${PORT}`);
     });
 });

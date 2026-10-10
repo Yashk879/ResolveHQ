@@ -1,3 +1,5 @@
+
+import api from "../api/axios";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
@@ -36,7 +38,6 @@ export default function Home() {
   });
 
   const [contactStatus, setContactStatus] = useState("");
-
   const [contactLoading, setContactLoading] = useState(false);
 
   function handleContactChange(e) {
@@ -55,27 +56,10 @@ export default function Home() {
     setContactStatus("");
 
     try {
-      const response = await fetch(
-        "http://localhost:3000/api/contact",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(contactForm),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.message || "Failed to send message"
-        );
-      }
+      const response = await api.post("/contact", contactForm);
 
       setContactStatus(
-        "Message sent successfully!"
+        response.data?.message || "Message sent successfully!"
       );
 
       setContactForm({
@@ -93,7 +77,8 @@ export default function Home() {
       console.error("Contact form error:", error);
 
       setContactStatus(
-        error.message ||
+        error.response?.data?.message ||
+          error.message ||
           "Something went wrong. Please try again."
       );
     } finally {
@@ -110,39 +95,22 @@ export default function Home() {
 
   return (
     <div className="landing-page">
-
-      {/* =========================
-          HERO
-      ========================== */}
-
+      {/* HERO */}
       <section className="hero-bg">
-
         {/* NAVBAR */}
-
         <nav className="home-nav">
-
           <div className="nav-actions">
-
             {isAuthenticated ? (
-              <Link
-                to="/dashboard"
-                className="btn btn-ghost"
-              >
+              <Link to="/dashboard" className="btn btn-ghost">
                 Go to dashboard
               </Link>
             ) : (
               <>
-                <Link
-                  to="/login"
-                  className="btn btn-ghost"
-                >
+                <Link to="/login" className="btn btn-ghost">
                   Agent login
                 </Link>
 
-                <Link
-                  to="/signup"
-                  className="btn btn-primary"
-                >
+                <Link to="/signup" className="btn btn-primary">
                   Create workspace
                 </Link>
               </>
@@ -155,26 +123,11 @@ export default function Home() {
             >
               Contact
             </button>
-
           </div>
-
         </nav>
 
-
         {/* HERO CONTENT */}
-
         <div className="home-hero">
-
-          {/* Small status badge */}
-
-          {/* <div className="hero-badge">
-            <span className="hero-badge-dot"></span>
-            Simple support. Better organized.
-          </div> */}
-
-
-          {/* Main brand */}
-
           <ShinyText
             text="ResolveHQ"
             className="hero-brand"
@@ -188,16 +141,10 @@ export default function Home() {
             pauseOnHover={false}
           />
 
-
-          {/* Main heading */}
-
           <h1>
-            Customer support, 
+            Customer support,
             without the chaos.
           </h1>
-
-
-          {/* Description */}
 
           <p className="hero-description">
             A straightforward helpdesk for small support
@@ -205,11 +152,7 @@ export default function Home() {
             together in one organized workspace.
           </p>
 
-
-          {/* CTA */}
-
           <div className="cta-row">
-
             <Link
               to="/customer/login"
               className="btn btn-primary btn-lg"
@@ -224,159 +167,93 @@ export default function Home() {
             >
               Start a workspace
             </Link>
-
           </div>
-
-
-          {/* Trust line */}
 
           <div className="hero-note">
             No complicated setup · Role-based access ·
             Built for focused support teams
           </div>
-
         </div>
-
       </section>
 
-
-      {/* =========================
-          FEATURES
-      ========================== */}
-
+      {/* FEATURES */}
       <section className="features-section">
-
         <div className="features-header">
+          <span className="section-label">Why ResolveHQ</span>
 
-          <span className="section-label">
-            Why ResolveHQ
-          </span>
-
-          <h2>
-            Everything your support team needs.
-          </h2>
+          <h2>Everything your support team needs.</h2>
 
           <p>
             Keep your workflow simple, organized, and
             focused on resolving customer issues.
           </p>
-
         </div>
 
-
         <div className="feature-grid">
-
           {FEATURES.map((feature) => (
             <div
               key={feature.title}
               className="panel feature-card"
             >
+              <div className="feature-icon">{feature.icon}</div>
 
-              <div className="feature-icon">
-                {feature.icon}
-              </div>
+              <h3>{feature.title}</h3>
 
-              <h3>
-                {feature.title}
-              </h3>
-
-              <p>
-                {feature.text}
-              </p>
-
+              <p>{feature.text}</p>
             </div>
           ))}
-
         </div>
-
       </section>
 
-
-      {/* =========================
-          SIMPLE CTA
-      ========================== */}
-
+      {/* BOTTOM CTA */}
       <section className="bottom-cta">
-
         <div>
+          <span className="section-label">GET STARTED</span>
 
-          <span className="section-label">
-            GET STARTED
-          </span>
-
-          <h2>
-            Ready to simplify your support?
-          </h2>
+          <h2>Ready to simplify your support?</h2>
 
           <p>
             Create your workspace and start managing
             customer issues in one place.
           </p>
-
         </div>
 
-        <Link
-          to="/signup"
-          className="btn btn-primary btn-lg"
-        >
+        <Link to="/signup" className="btn btn-primary btn-lg">
           Create workspace
           <span className="btn-arrow">→</span>
         </Link>
-
       </section>
 
-
-      {/* =========================
-          FOOTER
-      ========================== */}
-
+      {/* FOOTER */}
       <footer className="home-footer">
-
-        <span>
-          ResolveHQ
-        </span>
+        <span>ResolveHQ</span>
 
         <p>
           Built to simplify customer support and keep
           every issue on track.
         </p>
-
       </footer>
 
-
-      {/* =========================
-          CONTACT MODAL
-      ========================== */}
-
+      {/* CONTACT MODAL */}
       {showContact && (
-
         <div
           className="contact-overlay"
           onClick={closeContactModal}
         >
-
           <div
             className="contact-modal"
             onClick={(e) => e.stopPropagation()}
           >
-
             <div className="contact-modal-header">
-
               <div>
+                <span className="section-label">GET IN TOUCH</span>
 
-                <span className="section-label">
-                  GET IN TOUCH
-                </span>
-
-                <h2>
-                  Contact ResolveHQ
-                </h2>
+                <h2>Contact ResolveHQ</h2>
 
                 <p>
                   Have a question? We'd love to hear
                   from you.
                 </p>
-
               </div>
 
               <button
@@ -387,20 +264,14 @@ export default function Home() {
               >
                 ×
               </button>
-
             </div>
-
 
             <form
               className="contact-form"
               onSubmit={handleContactSubmit}
             >
-
               <div className="field">
-
-                <label htmlFor="contact-name">
-                  Name
-                </label>
+                <label htmlFor="contact-name">Name</label>
 
                 <input
                   id="contact-name"
@@ -411,15 +282,10 @@ export default function Home() {
                   placeholder="Enter your name"
                   required
                 />
-
               </div>
 
-
               <div className="field">
-
-                <label htmlFor="contact-email">
-                  Email
-                </label>
+                <label htmlFor="contact-email">Email</label>
 
                 <input
                   id="contact-email"
@@ -430,15 +296,10 @@ export default function Home() {
                   placeholder="Enter your email"
                   required
                 />
-
               </div>
 
-
               <div className="field">
-
-                <label htmlFor="contact-subject">
-                  Subject
-                </label>
+                <label htmlFor="contact-subject">Subject</label>
 
                 <input
                   id="contact-subject"
@@ -449,15 +310,10 @@ export default function Home() {
                   placeholder="What is this regarding?"
                   required
                 />
-
               </div>
 
-
               <div className="field">
-
-                <label htmlFor="contact-message">
-                  Message
-                </label>
+                <label htmlFor="contact-message">Message</label>
 
                 <textarea
                   id="contact-message"
@@ -468,35 +324,29 @@ export default function Home() {
                   placeholder="Tell us how we can help..."
                   required
                 />
-
               </div>
 
-
               {contactStatus && (
-                <p className="contact-status">
+                <p
+                  className="contact-status"
+                  role="status"
+                  aria-live="polite"
+                >
                   {contactStatus}
                 </p>
               )}
-
 
               <button
                 type="submit"
                 className="btn btn-primary contact-submit"
                 disabled={contactLoading}
               >
-                {contactLoading
-                  ? "Sending..."
-                  : "Send Message"}
+                {contactLoading ? "Sending..." : "Submit"}
               </button>
-
             </form>
-
           </div>
-
         </div>
-
       )}
-
     </div>
   );
 }
