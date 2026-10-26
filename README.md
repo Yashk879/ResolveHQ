@@ -512,4 +512,4 @@ GitHub: [github.com/Yashk879](https://github.com/Yashk879)
 
 ## License
 
-Available for educational and portfolio purposes. Licensing terms may be updated as the project evolves.
+Available for educational and portfolio purposes. Licensing terms may be updated as project evolves.
