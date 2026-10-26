@@ -181,22 +181,26 @@ textarea:focus-visible {
    NAVBAR
 ========================================= */
 
+
 .home-nav {
   position: relative;
   z-index: 2;
-
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
+  width: 100%;
+  box-sizing: border-box;
   padding: var(--space-5) var(--space-6);
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-3);
+  margin-left: auto;
 }
+
 
 
 /* =========================================
