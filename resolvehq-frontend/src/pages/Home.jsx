@@ -170,8 +170,7 @@ export default function Home() {
           </div>
 
           <div className="hero-note">
-            No complicated setup · Role-based access ·
-            Built for focused support teams
+            From incoming requests to resolved issues — all in one place
           </div>
         </div>
       </section>
@@ -179,7 +178,7 @@ export default function Home() {
       {/* FEATURES */}
       <section className="features-section">
         <div className="features-header">
-          <span className="section-label">Why ResolveHQ</span>
+          <span className="section-label">Why ResolveHQ?</span>
 
           <h2>Everything your support team needs.</h2>
 

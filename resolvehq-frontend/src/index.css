@@ -811,7 +811,12 @@ textarea:focus-visible {
     padding: 8px 11px;
 
     font-size: 12px;
+    transition: transform 0.3s ease;
   }
+  .nav-actions .btn:hover,
+  .contact-btn:hover{
+    transform: scale(1.06);
+  }  
 
   .home-hero {
     padding:
@@ -1186,6 +1191,10 @@ tr:hover td {
   padding: 13px 26px;
   font-size: 15px;
   border-radius: 8px;
+  transition: transform 0.2s ease;
+}
+.btn-lg:hover{
+  transform: scale(1.06);
 }
 
 .btn-ghost {

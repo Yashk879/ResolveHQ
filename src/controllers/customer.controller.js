@@ -2,7 +2,7 @@ const pool = require("../db/pool");
 
 async function createCustomers(req, res) {
 
-    const { name, email ,} = req.body;
+    const { name, email } = req.body;
 
     const companyId = req.user.companyId;
 
@@ -18,7 +18,7 @@ async function createCustomers(req, res) {
             `SELECT id
              FROM customers
              WHERE company_id=$1 AND email=$2`,
-            [companyId, email]
+             [companyId, email]
         );
 
         if (existingUser.rows.length > 0) {
@@ -53,16 +53,16 @@ async function createCustomers(req, res) {
     }
 }
 
-async function listCustomers(req,res){
-    const companyId=req.user.companyId;
+async function listCustomers(req, res) {
+    const companyId = req.user.companyId;
 
-    const search=req.query.search
+    const search = req.query.search
 
-    try{
+    try {
         let result;
 
-        if(search){
-            result=await pool.query(
+        if (search) {
+            result = await pool.query(
                 `SELECT c.id,c.company_id,c.name,c.email,c.created_at,t.subject as problem
                 from customers c
                 left join lateral(
@@ -74,11 +74,11 @@ async function listCustomers(req,res){
                 where c.company_id=$1
                 and (c.name ILIKE $2 OR c.email ILIKE $2)
                 order by c.id`,
-                [companyId,`%${search}%`]
+                [companyId, `%${search}%`]
             )
         }
-        else{
-            result=await pool.query(
+        else {
+            result = await pool.query(
                 `SELECT c.id,c.company_id,c.name,c.email,c.created_at,
                 t.subject as problem from customers c
                 left join lateral(
@@ -94,95 +94,95 @@ async function listCustomers(req,res){
         }
 
         return res.status(200).json({
-            message:"Customer  Fetched Succesfully",
-            customers:result.rows
+            message: "Customer  Fetched Succesfully",
+            customers: result.rows
         })
     }
-    catch(err){
+    catch (err) {
         console.error(err);
 
         return res.status(500).json({
-            message:"Internal Server Error"
+            message: "Internal Server Error"
         })
     }
 }
 
-async function getCustomerById(req,res){
-    const customerId=req.params.id;
+async function getCustomerById(req, res) {
+    const customerId = req.params.id;
 
-    const companyId=req.user.companyId;
+    const companyId = req.user.companyId;
 
-     try{
-        const result=await pool.query(
+    try {
+        const result = await pool.query(
             `SELECT id,company_id,name,email,created_at
             from customers
             where id=$1
             and company_id=$2`,
-            [customerId,companyId]
+            [customerId, companyId]
         );
- 
-        if(result.rows.length===0){
+
+        if (result.rows.length === 0) {
             return res.status(404).json({
-                message:"Customer Not Found"
+                message: "Customer Not Found"
             });
         }
- 
+
         return res.status(200).json({
-            customer:result.rows[0]
+            customer: result.rows[0]
         });
     }
-    catch(err){
+    catch (err) {
         console.error(err);
- 
+
         return res.status(500).json({
-            message:"Internal Server Error"
+            message: "Internal Server Error"
         })
     }
 }
 
-async function getCustomerTickets(req,res){
- 
-    const customerId=req.params.id;
- 
-    const companyId=req.user.companyId;
- 
-    try{
-        const customerResult=await pool.query(
+async function getCustomerTickets(req, res) {
+
+    const customerId = req.params.id;
+
+    const companyId = req.user.companyId;
+
+    try {
+        const customerResult = await pool.query(
             `SELECT id from customers
             where id=$1
             and company_id=$2`,
-            [customerId,companyId]
+            [customerId, companyId]
         );
- 
-        if(customerResult.rows.length===0){
+
+        if (customerResult.rows.length === 0) {
             return res.status(404).json({
-                message:"Customer Not Found"
+                message: "Customer Not Found"
             });
         }
- 
-        const result=await pool.query(
+
+        const result = await pool.query(
             `SELECT id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at
             from tickets
             where customer_id=$1
             and company_id=$2
             order by created_at desc`,
-            [customerId,companyId]
+            [customerId, companyId]
         );
- 
+
         return res.status(200).json({
-            tickets:result.rows
+            tickets: result.rows
         });
     }
-    catch(err){
+    catch (err) {
         console.error(err);
- 
+
         return res.status(500).json({
-            message:"Internal Server Error"
+            message: "Internal Server Error"
         })
     }
 }
 
 module.exports = {
     createCustomers,
-    listCustomers,getCustomerById,getCustomerTickets
+    listCustomers, getCustomerById, getCustomerTickets
 };
