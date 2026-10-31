@@ -1,19 +1,26 @@
-const express=require("express")
 
-const router=express.Router();
+const express = require("express");
+const router = express.Router();
 
-const {createOwnTicket,listOwnTickets,getOwnTicket,getOwnTicketMessage,replyToOwnTicket}=require("../controllers/customerPortal.controllers")
+const {
+  createOwnTicket,
+  listOwnTickets,
+  getOwnTicket,
+  getOwnTicketMessage,
+  replyToOwnTicket
+} = require("../controllers/customerPortal.controllers");
 
-const requireCustomerLogin=require("../middlewares/requireCustomerLogin")
+const requireCustomerLogin = require("../middlewares/requireCustomerLogin");
+const { getFaqs } = require("../controllers/faq.controllers");
 
-router.post("/tickets",requireCustomerLogin,createOwnTicket)
+// Customer FAQs
+router.get("/faqs", requireCustomerLogin, getFaqs);
 
-router.get("/tickets",requireCustomerLogin,listOwnTickets)
+// Customer tickets
+router.post("/tickets", requireCustomerLogin, createOwnTicket);
+router.get("/tickets", requireCustomerLogin, listOwnTickets);
+router.get("/tickets/:id", requireCustomerLogin, getOwnTicket);
+router.get("/tickets/:id/messages", requireCustomerLogin, getOwnTicketMessage);
+router.post("/tickets/:id/reply", requireCustomerLogin, replyToOwnTicket);
 
-router.get("/tickets/:id",requireCustomerLogin,getOwnTicket)
-
-router.get("/tickets/:id/messages",requireCustomerLogin,getOwnTicketMessage)
-
-router.post("/tickets/:id/reply",requireCustomerLogin,replyToOwnTicket)
-
-module.exports=router
+module.exports = router;

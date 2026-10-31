@@ -19,3 +19,7 @@ export function getOwnTicketMessages(id) {
 export function replyToOwnTicket(id, message) {
   return api.post(`/customer-portal/tickets/${id}/reply`, { message });
 }
+
+export function listCustomerFaqs(params = {}) {
+  return api.get("/customer-portal/faqs", { params });
+}

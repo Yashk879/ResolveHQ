@@ -13,6 +13,7 @@ const companyRoutes = require("./routes/company.routes");
 const customerAuthRoutes = require("./routes/customerAuth.routes");
 const customerPortalRoutes = require("./routes/customerPortal.routes");
 const contactMailRoutes = require("./routes/contactMail.routes");
+const faqRoutes = require("./routes/faq.routes");
 
 const app = express();
 
@@ -48,5 +49,6 @@ app.use("/api/companies", companyRoutes);
 app.use("/api/customer-auth", customerAuthRoutes);
 app.use("/api/customer-portal", customerPortalRoutes);
 app.use("/api/contact", contactMailRoutes);
+app.use("/api/faqs", faqRoutes);
 
 module.exports = app;

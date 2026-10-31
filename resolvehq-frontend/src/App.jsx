@@ -22,9 +22,10 @@ import CustomerProtectedRoute from "./components/CustomerProtectedRoute.jsx";
 import Loading from "./components/Loading.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 import { useCustomerAuth } from "./context/CustomerAuthContext.jsx";
-
+import FAQs from "./pages/FAQs.jsx";
 // Keeps an already-logged-in agent from landing back on /login or /signup
 // (e.g. hitting back button after signing in).
+
 function GuestRoute({ children }) {
   const { status } = useAuth();
   if (status === "checking") return <Loading label="Checking session…" />;
@@ -118,6 +119,17 @@ export default function App() {
           <ProtectedRoute requiredRole="admin">
             <AppShell>
               <Agents />
+            </AppShell>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/faqs"
+        element={
+          <ProtectedRoute requiredRole="admin">
+            <AppShell>
+              <FAQs />
             </AppShell>
           </ProtectedRoute>
         }
