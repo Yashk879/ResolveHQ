@@ -27,6 +27,9 @@ app.use(
   cors({
     origin(origin, callback) {
       // Allow requests without an Origin header, such as server-to-server calls.
+      console.log("CORS incoming origin:", JSON.stringify(origin));
+      console.log("CORS allowed origins:", JSON.stringify(allowedOrigins));
+
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
