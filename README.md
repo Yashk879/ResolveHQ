@@ -1,13 +1,12 @@
-# ResolveHQ
+# ResolveHQ – Multi-Tenant Helpdesk & Customer Support Platform
 
-**A full-stack, multi-tenant customer support platform** — agents and admins manage tickets, customers, and conversations from a shared dashboard, while customers get their own self-service portal to raise tickets and talk directly with support. Built to demonstrate production-style backend architecture, not just CRUD.
+A full-stack, multi-tenant customer support platform where administrators and support agents manage tickets, customers, and conversations, while customers get their own self-service portal to raise tickets and communicate directly with support teams.
 
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
-![Socket.IO](https://img.shields.io/badge/Socket.IO-010101?style=flat&logo=socket.io&logoColor=white)
-![JWT](https://img.shields.io/badge/JWT-black?style=flat&logo=jsonwebtokens)
+Built to demonstrate production-style backend architecture, authentication, authorization, database design, real-time communication, and deployment.
+
+🌐 **Live Application:** https://resolve-hq-one.vercel.app
+
+💻 **GitHub Repository:** https://github.com/Yashk879/ResolveHQ
 
 ---
 
@@ -17,14 +16,16 @@
 - [Key Features](#key-features)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
-- [Database Schema](#database-schema)
-- [Multi-Tenant Design](#multi-tenant-design)
-- [Authentication](#authentication)
+- [Database Design](#database-design)
+- [Multi-Tenant Architecture](#multi-tenant-architecture)
+- [Authentication & Authorization](#authentication--authorization)
 - [Real-Time Communication](#real-time-communication)
+- [SLA Management](#sla-management)
 - [Email Notifications](#email-notifications)
 - [API Reference](#api-reference)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
+- [Deployment](#deployment)
 - [Security Considerations](#security-considerations)
 - [Known Limitations & Roadmap](#known-limitations--roadmap)
 - [Engineering Concepts Demonstrated](#engineering-concepts-demonstrated)
@@ -34,79 +35,141 @@
 
 ## Overview
 
-ResolveHQ is a multi-tenant customer support and helpdesk platform. Multiple companies can use the same application and database while each company's agents, customers, tickets, and conversations stay completely isolated from every other company's.
+ResolveHQ is a multi-tenant customer support and helpdesk platform designed to help businesses manage customer support operations efficiently.
 
-The system is built around two separate applications sharing one backend:
+Multiple companies can use the same application and database while their agents, customers, tickets, and conversations are scoped to their respective companies.
 
-- An **agent/admin dashboard** for managing tickets, customers, and teammates.
-- A **customer portal** with its own signup and login, where customers can raise tickets and talk directly with the agent handling their case — updated in real time, with email notifications on both sides.
+The platform consists of two separate interfaces sharing one backend:
+
+**1. Agent/Admin Dashboard**
+- Manage customer support tickets.
+- Assign and reassign tickets to agents.
+- Manage customers and support agents.
+- Track ticket status and priority.
+- Monitor support statistics and SLA information.
+- Communicate with customers through ticket conversations.
+
+**2. Customer Self-Service Portal**
+- Independent customer signup and login.
+- Raise support tickets.
+- Track submitted tickets.
+- View ticket conversations.
+- Reply directly to support agents.
+- Receive email notifications for supported events.
+
+The project focuses on backend architecture, tenant-aware database queries, secure authentication, and real-time communication rather than just basic CRUD functionality.
+
+---
 
 ## Key Features
 
-### Core Helpdesk (Agent/Admin)
-- Company registration creates a tenant and its first admin in one step
-- Ticket lifecycle: create, list (filterable by status/priority, searchable by subject, paginated), view, update status/priority, assign to an agent, delete
-- Customer records: create, search, view, see a customer's full ticket history
-- Agent management: add agents, promote/demote roles, admin-only
-- Role-based dashboards: admins see company-wide stats, agents see their own assigned-ticket stats
+### 1. Core Helpdesk – Agent/Admin
 
-### Customer Self-Service Portal
-- Independent signup/login for customers — not the same auth system as agents
-- A customer picks their company from a public directory at signup (no leaking of internal IDs)
-- Raise a ticket directly (priority is intentionally not customer-settable — that's a triage decision for the support team)
-- View their own ticket history and full conversation thread
-- Reply directly to an agent on their own ticket
+- Company registration with its first administrator account.
+- Ticket creation, listing, viewing, updating, and deletion.
+- Ticket filtering by status and priority.
+- Ticket search and pagination.
+- Assign and reassign tickets to support agents.
+- Customer management and ticket history.
+- Agent management with admin-only permissions.
+- Role-based dashboards.
+- Company-wide statistics for administrators.
+- Assigned-ticket statistics for agents.
 
-### Real-Time Updates (Socket.IO)
-- Ticket create/update/delete and new messages broadcast live to everyone in that company
-- No polling, no manual refresh needed to see a new reply or a status change
+### 2. Customer Self-Service Portal
 
-### Email Notifications (Gmail/Nodemailer)
-- Password reset links (agents)
-- Ticket-raised confirmation (customer)
-- Ticket-assigned notification (agent)
-- New-reply notification to the assigned agent when a customer responds
+- Separate customer signup and login system.
+- Public company directory for selecting a company during signup.
+- Create support tickets without requiring an agent.
+- View personal ticket history.
+- View individual ticket details.
+- Access complete conversation history.
+- Reply directly to support agents.
+- Real-time conversation updates.
 
-### Security & Access Control
-- Separate JWT/cookie pairs for agent sessions vs. customer sessions — a customer token can never be mistaken for an agent token, or vice versa
-- Every database query that touches company-owned data is scoped by `company_id` — there is no code path where changing an ID in a request exposes another tenant's data
-- Passwords hashed with bcrypt, password-reset tokens stored as SHA-256 hashes with a 1-hour expiry, never the raw token
+Ticket priority is controlled by the support team rather than the customer, allowing agents to handle ticket triage.
+
+### 3. Authentication & Authorization
+
+- Separate authentication systems for agents and customers.
+- JWT-based authentication.
+- HTTP-only authentication cookies.
+- Password hashing using bcrypt.
+- Role-based access control.
+- Protected backend routes.
+- Forgot password and reset password functionality.
+- Single-use password reset tokens with expiration.
+- Separate session handling for agents and customers.
+
+### 4. Real-Time Communication
+
+- Socket.IO integration.
+- Real-time ticket creation and update events.
+- Real-time ticket conversation updates.
+- Company-scoped socket rooms.
+- No manual page refresh required for supported live updates.
+
+### 5. SLA Management
+
+- Configurable SLA policies based on ticket priority.
+- First-response deadline calculation.
+- Resolution deadline calculation.
+- First-response SLA status tracking.
+- Resolution SLA status tracking.
+- SLA status updates when agents respond to or resolve tickets.
+- Background monitoring for overdue tickets.
+
+### 6. Email Notifications
+
+Email functionality is implemented through a shared mailer utility using the Resend API.
+
+Supported notifications include:
+
+- Password reset emails.
+- Contact form notifications.
+- Customer ticket submission confirmations.
+- Agent ticket assignment notifications.
+- Customer notifications when an agent replies to a ticket.
+
+**Note:** The current Resend testing sender has recipient restrictions. Sending to arbitrary customer addresses requires a verified sending domain.
 
 ---
 
 ## Architecture
 
-```mermaid
-flowchart TB
-    subgraph Client["React Client (Vite)"]
-        AgentApp["Agent Dashboard<br/>Tickets · Customers · Agents · Stats"]
-        CustomerApp["Customer Portal<br/>Raise Ticket · My Tickets · Conversation"]
-        PublicApp["Public Site<br/>Landing · Signup · Login"]
-    end
+ResolveHQ follows a client-server architecture with separate frontend and backend applications.
 
-    subgraph Server["Express Server"]
-        Routes["Routes"]
-        MW["Middleware<br/>requireLogin · requireCustomerLogin · requireRole"]
-        Controllers["Controllers<br/>Business Logic"]
-        Mailer["Mailer (Nodemailer)"]
-        SocketServer["Socket.IO Server<br/>company_&lt;id&gt; rooms"]
-    end
-
-    DB[(PostgreSQL)]
-    Resend Email API
-
-    AgentApp -- HTTP/REST + cookie --> Routes
-    CustomerApp -- HTTP/REST + cookie --> Routes
-    PublicApp -- HTTP/REST --> Routes
-
-    AgentApp <-. WebSocket .-> SocketServer
-    CustomerApp <-. WebSocket .-> SocketServer
-
-    Routes --> MW --> Controllers
-    Controllers --> DB
-    Controllers --> Resend Email API
-    Controllers -. emit event .-> SocketServer
+```text
+             ADMIN / AGENT / CUSTOMER
+                       |
+                       |
+                React Frontend
+                    Vercel
+                       |
+                       |
+                 REST APIs
+                       |
+                       |
+              Node.js + Express
+                    Render
+                       |
+          +------------+------------+
+          |            |            |
+          |            |            |
+      PostgreSQL    Socket.IO     Resend
+        Neon        Real-Time     Email API
+                    Updates
 ```
+
+### Request Flow
+
+1. The user interacts with the React frontend.
+2. The frontend sends requests to the Express backend.
+3. Authentication middleware validates the session.
+4. Authorization middleware checks the user's permissions.
+5. Controllers execute business logic and interact with PostgreSQL.
+6. Socket.IO broadcasts relevant events to connected clients.
+7. The email service handles supported email notifications.
 
 ---
 
@@ -114,301 +177,344 @@ flowchart TB
 
 | Layer | Technology |
 |---|---|
-| Frontend | React, React Router, Axios, Vite, Context API |
-| Backend | Node.js, Express.js, REST APIs |
-| Real-time | Socket.IO |
-| Database | PostgreSQL (foreign keys, composite unique constraints, cascading deletes, connection pooling) |
-| Auth & Security | JWT, bcrypt, HTTP-only cookies, RBAC, CORS |
-| Email | Nodemailer (Gmail SMTP) |
+| Frontend | React.js, Vite, JavaScript |
+| Routing | React Router |
+| State Management | React Context API |
+| HTTP Client | Axios |
+| Backend | Node.js, Express.js |
+| Database | PostgreSQL |
+| Real-Time Communication | Socket.IO |
+| Authentication | JWT, HTTP-only Cookies |
+| Password Hashing | bcrypt |
+| Email Service | Resend |
+| API Testing | Postman |
+| Version Control | Git, GitHub |
+| Frontend Deployment | Vercel |
+| Backend Deployment | Render |
+| Database Hosting | Neon PostgreSQL |
 
 ---
 
-## Database Schema
+## Database Design
 
-```mermaid
-erDiagram
-    COMPANIES ||--o{ AGENTS : employs
-    COMPANIES ||--o{ CUSTOMERS : has
-    COMPANIES ||--o{ TICKETS : owns
-    CUSTOMERS ||--o{ TICKETS : raises
-    AGENTS ||--o{ TICKETS : "assigned to"
-    TICKETS ||--o{ MESSAGES : contains
-    AGENTS ||--o{ MESSAGES : sends
-    CUSTOMERS ||--o{ MESSAGES : sends
+ResolveHQ uses PostgreSQL as its relational database.
 
-    COMPANIES {
-        int id PK
-        varchar name
-        timestamp created_at
-    }
-    AGENTS {
-        int id PK
-        int company_id FK
-        varchar name
-        varchar email
-        text password_hash
-        varchar role
-        text reset_token_hash
-        timestamp reset_token_expiry
-        timestamp created_at
-    }
-    CUSTOMERS {
-        int id PK
-        int company_id FK
-        varchar name
-        varchar email
-        text password_hash "nullable"
-        timestamp created_at
-    }
-    TICKETS {
-        int id PK
-        int company_id FK
-        int customer_id FK
-        int assigned_agent_id FK "nullable"
-        varchar subject
-        text description
-        varchar status
-        varchar priority
-        timestamp created_at
-        timestamp updated_at
-    }
-    MESSAGES {
-        int id PK
-        int ticket_id FK
-        int sender_agent_id FK "nullable"
-        int sender_customer_id FK "nullable"
-        text messages
-        timestamp created_at
-    }
+The database design uses foreign keys, unique constraints, indexes, and tenant-aware relationships to maintain data consistency and support multiple companies.
+
+### Important Design Decisions
+
+**1. Nullable Customer Passwords**
+
+`customers.password_hash` can be nullable so that an agent can create a customer record before the customer registers for the self-service portal.
+
+A customer can subsequently register and claim an existing passwordless record.
+
+**2. Different Email Uniqueness Rules**
+
+- Agent email addresses are globally unique because agents authenticate without selecting a company first.
+- Customer email addresses are unique within a company using a composite constraint:
+
+```sql
+UNIQUE(company_id, email)
 ```
 
-**Notable design choices:**
-- `customers.password_hash` is nullable on purpose — an agent can add a customer record before that customer ever signs up for the self-service portal themselves. Signup either creates a new row or "claims" an existing passwordless one.
-- `agents.email` is globally unique (not per-company) since agents log in without selecting a company first; `customers.email` is unique **per company** (`UNIQUE(company_id, email)`), since the same person could be a customer of two different companies using this platform.
-- `messages` has two nullable sender columns rather than a polymorphic sender — simple, explicit, and trivially distinguishes "who sent this" (`sender_agent_id IS NOT NULL` vs. `sender_customer_id IS NOT NULL`) without a join.
-- `tickets.assigned_agent_id` is nullable — a customer-raised ticket starts unassigned until an admin assigns it.
+This allows the same person to be a customer of multiple companies.
+
+**3. Explicit Message Sender Columns**
+
+The messages table uses separate nullable sender columns:
+
+- `sender_agent_id`
+- `sender_customer_id`
+
+This makes it straightforward to identify whether a message was sent by an agent or a customer.
+
+**4. Optional Ticket Assignment**
+
+`tickets.assigned_agent_id` is nullable.
+
+A ticket created by a customer can remain unassigned until an administrator assigns it to a support agent.
+
+**5. SLA Tracking**
+
+Tickets store first-response and resolution deadlines along with their corresponding SLA statuses.
+
+This allows the application to track whether support teams meet their configured response and resolution targets.
 
 ---
 
-## Multi-Tenant Design
+## Multi-Tenant Architecture
 
-Every company is a tenant. All companies share the same application instance and database, but a `company_id` column on every tenant-owned table — enforced at the query level, not just the UI — guarantees isolation:
+Each company represents an independent tenant.
 
-```mermaid
-flowchart LR
-    subgraph CompanyA["Company A"]
-        A1[Agents]
-        A2[Customers]
-        A3[Tickets]
-        A4[Messages]
-    end
-    subgraph CompanyB["Company B"]
-        B1[Agents]
-        B2[Customers]
-        B3[Tickets]
-        B4[Messages]
-    end
-    DB[(Shared PostgreSQL Database)]
-    CompanyA --> DB
-    CompanyB --> DB
+All tenants share the same application instance and PostgreSQL database, while company-owned records are scoped using `company_id`.
+
+The backend derives company identity from the authenticated user's verified JWT rather than trusting a company ID supplied by the client.
+
+For example:
+
+```sql
+SELECT *
+FROM tickets
+WHERE id = $1
+AND company_id = $2;
 ```
 
-The authenticated agent's `company_id` comes from their verified JWT, never from client input — so there is no request parameter a malicious or buggy client could send to read or modify another company's data. The same principle applies to customers: a customer's session carries their own `company_id` and `customer_id`, and every customer-facing query checks both before returning anything.
+For customer-facing operations, the backend also checks the authenticated customer's identity:
+
+```sql
+SELECT *
+FROM tickets
+WHERE id = $1
+AND company_id = $2
+AND customer_id = $3;
+```
+
+This approach ensures that ticket access is checked against both company and user identity.
+
+The same tenant-scoping principle is applied throughout company-owned operations.
 
 ---
 
-## Authentication
+## Authentication & Authorization
 
-ResolveHQ runs **two entirely separate authentication systems** sharing one backend — intentionally, since an agent's and a customer's identity, permissions, and session lifecycle are fundamentally different things.
+ResolveHQ implements two separate authentication systems sharing one backend.
 
-| | Agents | Customers |
+This separation ensures that customer sessions cannot be used as agent sessions and vice versa.
+
+| Component | Agents | Customers |
 |---|---|---|
-| Cookie name | `token` | `customer_token` |
-| JWT payload | `{ agentId, companyId, role }` | `{ customerId, companyId, type: "customer" }` |
+| Cookie | `token` | `customer_token` |
+| JWT Identity | `agentId` | `customerId` |
+| Company Identity | `companyId` | `companyId` |
+| Authorization | Role-based | Customer ownership |
 | Middleware | `requireLogin` | `requireCustomerLogin` |
-| Identifies company by | Already an employee of one | Chosen from a public dropdown at signup |
 
-### Agent login flow
+### Role-Based Access Control
 
-```mermaid
-sequenceDiagram
-    participant U as Agent
-    participant S as Express Server
-    participant DB as PostgreSQL
+The application supports two agent roles:
 
-    U->>S: POST /api/auth/login { email, password }
-    S->>DB: SELECT agent WHERE email = $1
-    DB-->>S: agent row (incl. password_hash)
-    S->>S: bcrypt.compare(password, password_hash)
-    S->>S: jwt.sign({ agentId, companyId, role })
-    S-->>U: Set-Cookie: token=... (httpOnly)
-    U->>S: GET /api/auth/me (cookie sent automatically)
-    S->>DB: SELECT agent WHERE id = agentId
-    DB-->>S: full agent profile
-    S-->>U: { id, name, email, role, companyId }
-```
+**Admin**
+- View company-wide tickets.
+- Create and manage agents.
+- Assign tickets.
+- Access company statistics.
+- Perform administrative operations.
 
-### Password reset flow
+**Agent**
+- View assigned tickets.
+- Respond to tickets.
+- Update permitted ticket fields.
+- Access agent-specific statistics.
 
-```mermaid
-sequenceDiagram
-    participant U as Agent
-    participant S as Express Server
-    participant DB as PostgreSQL
-    participant M as Gmail SMTP
+Authorization is enforced on the backend. Frontend route protection and hidden navigation items are additional user-interface controls, not the security boundary.
 
-    U->>S: POST /api/auth/forgotPassword { email }
-    S->>DB: lookup agent by email
-    S->>S: generate random token, store SHA-256 hash + 1hr expiry
-    S->>M: email reset link (raw token, never the hash)
-    S-->>U: generic "if that email exists..." response
-    U->>S: POST /api/auth/resetPassword { token, newPassword }
-    S->>S: hash incoming token, compare to stored hash + check expiry
-    S->>DB: update password_hash, clear reset token
-    S-->>U: success
-```
+### Password Reset
 
-The response to `forgotPassword` is identical whether or not the email exists, and the raw token is never stored — only its hash — so a database leak alone can't be used to reset anyone's password.
+The password reset functionality includes:
+
+- Secure reset token generation.
+- SHA-256 hashing of reset tokens before storage.
+- One-hour token expiration.
+- Single-use reset tokens.
+- Generic forgot-password responses to avoid revealing whether an email address exists.
 
 ---
 
 ## Real-Time Communication
 
-Each authenticated socket joins a room named `company_<id>`. Server-side controllers emit directly into that room after any state change, so every connected client for that company — agent or customer — receives it instantly.
+ResolveHQ uses Socket.IO for real-time communication between agents and customers.
 
-```mermaid
-flowchart TD
-    Action["Agent/Customer action:<br/>create · update · assign · delete ticket<br/>or send a message"]
-    Controller["Controller completes the DB write"]
-    Emit["emitTicketEvent(companyId, event, data)"]
-    Room["io.to('company_&lt;id&gt;').emit(...)"]
-    A1["Other agents' browsers<br/>in that company"]
-    C1["That ticket's customer's browser"]
+Authenticated connections join company-specific rooms.
 
-    Action --> Controller --> Emit --> Room
-    Room --> A1
-    Room --> C1
+Example room:
+
+```text
+company_<id>
 ```
 
-**Events emitted:** `ticket:created`, `ticket:updated`, `ticket:deleted`, `ticket:message`.
+When a ticket or conversation changes, the backend emits events to the relevant company room.
 
-Clients append incoming messages with duplicate-protection (checked by message `id`), so a sender's own action — which already updates their local state via the API response — never results in a visible duplicate when the broadcast echoes back to their own socket.
+### Supported Events
+
+| Event | Purpose |
+|---|---|
+| `ticket:created` | New ticket created |
+| `ticket:updated` | Ticket information updated |
+| `ticket:deleted` | Ticket deleted |
+| `ticket:message` | New conversation message |
+
+Clients use message IDs to prevent duplicate messages when API responses and Socket.IO broadcasts update the same conversation.
+
+---
+
+## SLA Management
+
+ResolveHQ includes a configurable Service Level Agreement system.
+
+SLA policies define response and resolution time limits according to ticket priority.
+
+### Tracked SLA Information
+
+- `first_response_due_at`
+- `first_responded_at`
+- `resolution_due_at`
+- `first_response_sla_status`
+- `resolution_sla_status`
+
+### SLA Workflow
+
+1. A ticket is created.
+2. The backend retrieves the applicable SLA policy.
+3. First-response and resolution deadlines are calculated.
+4. When an agent sends the first response, the first-response SLA status is updated.
+5. When a ticket is resolved or closed, the resolution SLA status is updated.
+6. A background monitoring service checks overdue tickets.
+
+The system uses configurable deadlines rather than hard-coded response times.
 
 ---
 
 ## Email Notifications
 
-A single shared `mailer.js` utility wraps one Gmail/Nodemailer transporter, reused by every notification type. A failed send is always logged and swallowed — a flaky email provider should never break the ticket action that triggered it.
+ResolveHQ uses a shared mailer utility located at:
+
+```text
+src/utils/mailer.js
+```
+
+The utility integrates with the Resend API and is reused by different controllers.
+
+### Notification Workflow
 
 | Trigger | Recipient | Notification |
 |---|---|---|
-| Agent requests password reset | Agent | Reset link (1-hour expiry) |
-| Customer raises a ticket | Customer | "We've received your ticket" |
-| Admin assigns a ticket | Assigned agent | "A new ticket has been assigned to you" |
-| Customer replies to a ticket | Assigned agent (if any) | "New reply on ticket..." with a preview |
+| Password reset request | Agent | Password reset link |
+| Customer raises a ticket | Customer | Ticket confirmation |
+| Admin assigns a ticket | Assigned agent | Assignment notification |
+| Agent replies to a ticket | Customer | New ticket reply notification |
+| Contact form submission | Support inbox | Contact message |
+
+Email delivery is designed to fail independently of the underlying ticket operation, so an email provider failure does not need to interrupt ticket creation or replies.
+
+**Current limitation:** The application uses Resend's testing sender. A verified sending domain is required before unrestricted delivery to arbitrary recipients.
 
 ---
 
 ## API Reference
 
-### Auth — Agents (`/api/auth`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/signup` | — | Register a company + its first admin |
-| POST | `/login` | — | Agent login, sets `token` cookie |
-| POST | `/logout` | — | Clears the agent session |
-| GET | `/me` | Agent | Current agent's full profile |
-| POST | `/forgotPassword` | — | Request a password reset email |
-| POST | `/resetPassword` | — | Reset password with a valid token |
+The following table summarizes the main API endpoints.
 
-### Auth — Customers (`/api/customer-auth`)
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/signup` | — | Customer signup (creates or claims a customer record) |
-| POST | `/login` | — | Customer login, sets `customer_token` cookie |
-| POST | `/logout` | — | Clears the customer session |
-| GET | `/me` | Customer | Current customer's profile |
+### Agent Authentication – `/api/auth`
 
-### Companies (`/api/companies`)
-| Method | Path | Auth | Description |
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/` | — | Public list of companies (id + name only), powers the customer signup dropdown |
+| POST | `/signup` | Public | Register company and first admin |
+| POST | `/login` | Public | Agent login |
+| POST | `/logout` | Public | Clear agent session |
+| GET | `/me` | Agent | Get current agent profile |
+| POST | `/forgotPassword` | Public | Request password reset |
+| POST | `/resetPassword` | Public | Reset password |
 
-### Tickets (`/api/tickets`) — Agent-facing
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/createTickets` | Agent | Create a ticket (auto-assigned to creator) |
-| GET | `/` | Agent | List tickets — filterable, searchable, paginated; agents see only their own, admins see all |
-| GET | `/:id` | Agent | Get a single ticket |
-| PATCH | `/:id` | Agent | Update status/priority |
-| PATCH | `/:id/assign` | Admin | Assign a ticket to an agent |
-| DELETE | `/:id` | Admin | Delete a ticket |
+### Customer Authentication – `/api/customer-auth`
 
-### Customer Portal (`/api/customer-portal`) — Customer-facing
-| Method | Path | Auth | Description |
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/tickets` | Customer | Raise a ticket (unassigned, no priority input) |
-| GET | `/tickets` | Customer | List the customer's own tickets |
-| GET | `/tickets/:id` | Customer | View one of their own tickets |
-| GET | `/tickets/:id/messages` | Customer | View that ticket's conversation |
-| POST | `/tickets/:id/reply` | Customer | Reply on their own ticket |
+| POST | `/signup` | Public | Customer signup |
+| POST | `/login` | Public | Customer login |
+| POST | `/logout` | Public | Clear customer session |
+| GET | `/me` | Customer | Get customer profile |
 
-### Customers (`/api/customer`) — Agent-facing
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/create` | Agent | Add a customer record |
-| GET | `/` | Agent | List/search company customers |
-| GET | `/:id` | Agent | View a customer |
-| GET | `/:id/tickets` | Agent | That customer's ticket history |
+### Companies – `/api/companies`
 
-### Agents (`/api/agents`)
-| Method | Path | Auth | Description |
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| POST | `/createAgent` | Admin | Add a new agent |
+| GET | `/` | Public | List available companies |
+
+### Tickets – `/api/tickets`
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/createTickets` | Agent | Create ticket |
+| GET | `/` | Agent | List accessible tickets |
+| GET | `/:id` | Agent | Get ticket details |
+| PATCH | `/:id` | Agent | Update ticket |
+| PATCH | `/:id/assign` | Admin | Assign ticket |
+| DELETE | `/:id` | Admin | Delete ticket |
+
+### Customer Portal – `/api/customer-portal`
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/tickets` | Customer | Raise a ticket |
+| GET | `/tickets` | Customer | List own tickets |
+| GET | `/tickets/:id` | Customer | View own ticket |
+| GET | `/tickets/:id/messages` | Customer | View conversation |
+| POST | `/tickets/:id/reply` | Customer | Reply to ticket |
+
+### Customers – `/api/customer`
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/create` | Agent | Create customer |
+| GET | `/` | Agent | List/search customers |
+| GET | `/:id` | Agent | View customer |
+| GET | `/:id/tickets` | Agent | View customer's ticket history |
+
+### Agents – `/api/agents`
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| POST | `/createAgent` | Admin | Create agent |
 | GET | `/allAgents` | Admin | List company agents |
-| PATCH | `/:id` | Admin | Update an agent's name/role |
+| PATCH | `/:id` | Admin | Update agent |
 
-### Messages (`/api/response`) — Agent-facing conversation
-| Method | Path | Auth | Description |
-|---|---|---|---|
-| POST | `/replyMessage/:id` | Agent | Reply on any ticket in the company |
-| GET | `/allMessages/:id` | Agent | View a ticket's conversation |
+### Messages – `/api/response`
 
-### Stats (`/api/stats`)
-| Method | Path | Auth | Description |
+| Method | Endpoint | Access | Description |
 |---|---|---|---|
-| GET | `/stats` | Admin | Company-wide ticket counts by status |
-| GET | `/agentStats` | Agent | The agent's own assigned-ticket counts |
+| POST | `/replyMessage/:id` | Agent | Reply to ticket |
+| GET | `/allMessages/:id` | Agent | Get ticket conversation |
+
+### Statistics – `/api/stats`
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/stats` | Admin | Company-wide statistics |
+| GET | `/agentStats` | Agent | Agent-specific statistics |
 
 ---
 
 ## Project Structure
 
-```
+```text
 ResolveHQ/
 │
 ├── resolvehq-frontend/
+│   ├── public/
 │   └── src/
-│       ├── api/              # One module per backend resource (axios wrappers)
-│       ├── components/       # Sidebar, Navbar, Badges, TicketList, ProtectedRoute, etc.
-│       ├── context/          # AuthContext, CustomerAuthContext, ToastContext
-│       ├── pages/            # Dashboard, Tickets, Customers, Agents, CustomerPortal, etc.
-│       ├── socket.js         # Shared Socket.IO client
+│       ├── api/                 # API modules
+│       ├── components/          # Reusable UI components
+│       ├── contexts/            # Authentication and toast contexts
+│       ├── pages/               # Application pages
+│       ├── socket.js            # Socket.IO client
 │       ├── App.jsx
-│       └── index.css         # Design tokens + shared component styles
+│       └── index.css
 │
 ├── src/
-│   ├── controllers/          # One file per resource
-│   ├── routes/                # One file per resource
-│   ├── middlewares/           # requireLogin, requireCustomerLogin, requiresRole
-│   ├── utils/
-│   │   └── mailer.js          # Shared Nodemailer transporter
-│   ├── socket.js              # Socket.IO server, room management, emitTicketEvent
-│   ├── db/pool.js
-│   └── database/schema.sql
+│   ├── controllers/             # Business logic
+│   ├── routes/                  # API route definitions
+│   ├── middlewares/             # Authentication and authorization
+│   ├── services/                # SLA and background services
+│   ├── database/                # SQL schema and migrations
+│   ├── utils/                   # Shared utilities
+│   ├── db/
+│   │   └── pool.js              # PostgreSQL connection pool
+│   └── socket.js                # Socket.IO server
 │
-├── index.js                   # Server entry point
+├── server.js                    # Backend entry point
 ├── package.json
+├── package-lock.json
 └── README.md
 ```
 
@@ -417,99 +523,228 @@ ResolveHQ/
 ## Getting Started
 
 ### Prerequisites
-Node.js, npm, PostgreSQL, Git.
 
-### 1. Clone and install
+- Node.js
+- npm
+- PostgreSQL
+- Git
+
+### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Yashk879/ResolveHQ.git
+
 cd ResolveHQ
-npm install
-cd resolvehq-frontend && npm install && cd ..
 ```
 
-### 2. Backend environment variables (`.env` in project root)
+### 2. Install Backend Dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Backend Environment Variables
+
+Create a `.env` file in the project root.
+
 ```env
-DB_USER=your_postgres_user
-DB_PASSWORD=your_postgres_password
+NODE_ENV=development
+
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=resolveHQ
+DB_USER=your_postgres_user
+DB_PASSWORD=your_postgres_password
 
 JWT_SECRET=your_jwt_secret
-NODE_ENV=development
-
-GMAIL_USER=youraddress@gmail.com
-GMAIL_APP_PASSWORD=your_16_char_app_password
 
 FRONTEND_URL=http://localhost:5173
-```
-`GMAIL_APP_PASSWORD` requires 2-Step Verification enabled on the Google account, then generating an app password at `myaccount.google.com/apppasswords`.
 
-### 3. Frontend environment variables (`resolvehq-frontend/.env`)
+RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=your_verified_sender
+```
+
+Use the exact database environment variable names expected by `src/db/pool.js`.
+
+Never commit your `.env` file or expose API keys and database credentials.
+
+### 4. Set Up the Database
+
+Create the PostgreSQL database:
+
+```sql
+CREATE DATABASE "resolveHQ";
+```
+
+Execute the schema and required SQL migration files from:
+
+```text
+src/database/
+```
+
+Ensure the database tables, constraints, and indexes are created before starting the application.
+
+### 5. Start the Backend
+
+From the project root:
+
+```bash
+node server.js
+```
+
+The backend runs on port `3000` by default.
+
+### 6. Install Frontend Dependencies
+
+Open another terminal:
+
+```bash
+cd resolvehq-frontend
+
+npm install
+```
+
+### 7. Configure Frontend Environment Variables
+
+Create `resolvehq-frontend/.env`:
+
 ```env
 VITE_API_URL=http://localhost:3000/api
 ```
 
-### 4. Database setup
-```sql
-CREATE DATABASE "resolveHQ";
-```
-Then run `src/database/schema.sql` against it to create all tables.
+### 8. Start the Frontend
 
-### 5. Run it
 ```bash
-# Terminal 1 — backend
-node index.js
-
-# Terminal 2 — frontend
-cd resolvehq-frontend
 npm run dev
 ```
 
-Never commit a real `.env` file — rotate any secret that's ever been pasted somewhere outside your own machine.
+Open the development URL provided by Vite:
+
+```text
+http://localhost:5173
+```
+
+---
+
+## Deployment
+
+ResolveHQ is deployed using the following services:
+
+| Component | Platform |
+|---|---|
+| Frontend | Vercel |
+| Backend | Render |
+| PostgreSQL Database | Neon |
+| Email Service | Resend |
+
+### Live Links
+
+- **Application:** https://resolve-hq-one.vercel.app
+- **GitHub:** https://github.com/Yashk879/ResolveHQ
 
 ---
 
 ## Security Considerations
 
-- Passwords hashed with bcrypt (cost factor 10), never stored or logged in plaintext
-- JWTs stored in `httpOnly` cookies — inaccessible to client-side JavaScript, mitigating XSS-based token theft
-- Password reset tokens are single-use, expire after 1 hour, and only their SHA-256 hash is ever persisted
-- Every company-scoped query filters by the authenticated identity's `company_id` — never by a client-supplied ID
-- Role-based middleware (`requiresRole("admin")`) enforced server-side; the frontend hides admin-only UI for agents as a UX nicety, not as the actual security boundary
-- `cookie-parser` + `express.json()` with a locked-down CORS origin
+ResolveHQ incorporates several backend security practices:
+
+- Passwords hashed using bcrypt.
+- JWT authentication stored in HTTP-only cookies.
+- Separate agent and customer authentication sessions.
+- Server-side role-based authorization.
+- Company-scoped database queries.
+- Customer ownership checks for ticket access.
+- Password reset tokens stored as SHA-256 hashes.
+- Single-use password reset tokens with expiration.
+- CORS configured for trusted frontend origins.
+- Environment variables used for sensitive configuration.
+
+Frontend route protection is used for navigation and user experience, while actual authorization is enforced through backend middleware and controller-level access checks.
+
+---
 
 ## Known Limitations & Roadmap
 
-Being transparent about what's not here yet:
+ResolveHQ is deployed and functional, but there are areas that can be improved further.
 
-- **No automated test suite** — the next highest-priority addition
-- **No CI/CD pipeline** — tests, if added, currently only run manually
-- **Not yet deployed** — runs locally; needs a hosted Postgres + backend + frontend before it's demonstrable as a live product
-- **No rate limiting** on auth endpoints, which matters more now that customer signup/login are public, internet-facing routes
-- **Manual schema migrations** — changes are applied by hand via `ALTER TABLE`, no migration tool in place
-- **No file attachments** on tickets/messages
-- **No production observability** — no error tracking or structured logging beyond `console.error`
+### Current Limitations
 
-Planned next: automated tests around auth and tenant isolation (the project's core differentiators), a CI pipeline, and a production deployment.
+- No comprehensive automated test suite yet.
+- No CI/CD pipeline for automated testing.
+- Automatic SLA breach detection requires further verification.
+- Cross-company isolation requires additional adversarial testing.
+- Email delivery to arbitrary recipients requires a verified Resend domain.
+- No ticket attachment support yet.
+- No dedicated production error-tracking or observability platform.
+- Database schema changes are managed through SQL files and manual migrations.
+
+### Planned Improvements
+
+- Automated integration tests for authentication and tenant isolation.
+- CI pipeline for running tests on code changes.
+- Enhanced SLA monitoring and breach verification.
+- Production-ready email delivery with a verified domain.
+- Ticket attachments.
+- Advanced analytics and reporting.
+- Structured logging and error monitoring.
+
+---
 
 ## Engineering Concepts Demonstrated
 
-**Backend:** REST API design, Express middleware chains, two parallel authentication systems, role-based authorization, connection pooling, environment-based configuration, cookie-based sessions, transactional signup (company + admin created together).
+Building ResolveHQ provided practical experience with several backend and full-stack engineering concepts.
 
-**Database:** PostgreSQL relational design, foreign keys, composite unique constraints (`UNIQUE(company_id, email)`), cascading vs. `SET NULL` deletes, tenant-aware queries, derived (non-stored) fields via `LEFT JOIN LATERAL`.
+**Backend Development**
+- REST API design.
+- Express middleware architecture.
+- Separation of routes, controllers, and services.
+- JWT authentication.
+- Role-based access control.
+- Environment-based configuration.
+- Error handling and asynchronous operations.
 
-**Frontend:** React Context for dual auth state, protected/guest/role-gated routing, a from-scratch design system (not a component library default), optimistic + real-time state reconciliation, toast-based feedback.
+**Database Engineering**
+- PostgreSQL relational database design.
+- Foreign keys and referential integrity.
+- Composite unique constraints.
+- Database indexing.
+- Connection pooling.
+- Tenant-aware SQL queries.
+- Cascading deletes and nullable relationships.
 
-**System design:** Multi-tenant architecture, separation of concerns across routes/middleware/controllers, real-time event broadcasting scoped to tenant boundaries, graceful degradation (a failed email never blocks the action that triggered it).
+**Frontend Development**
+- React component architecture.
+- React Context API.
+- Protected and role-based routes.
+- Axios API integration.
+- Separate authentication contexts.
+- Real-time UI synchronization.
+
+**System Design**
+- Multi-tenant application architecture.
+- Separation of authentication domains.
+- Company-scoped Socket.IO communication.
+- Background SLA monitoring.
+- Graceful email failure handling.
+- Deployment of a distributed frontend/backend application.
 
 ---
 
 ## Author
 
 **Yash Kumar**
-GitHub: [github.com/Yashk879](https://github.com/Yashk879)
+
+B.Tech – Computer Science and Engineering
+
+- GitHub: [Yashk879](https://github.com/Yashk879)
+- LinkedIn: [Connect with me](https://www.linkedin.com/)
+
+---
 
 ## License
 
-Available for educational and portfolio purposes. Licensing terms may be updated as project evolves.
+Available for educational and portfolio purposes. Licensing terms may be updated as the project evolves.
+
+---
+
+⭐ If you find this project interesting, consider giving the repository a star!
