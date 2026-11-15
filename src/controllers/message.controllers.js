@@ -1,5 +1,6 @@
 const pool=require("../db/pool")
 const { emitTicketEvent } = require("../socket")
+const { sendMail } = require("../utils/mailer")
 
 async function replyTicket(req, res) {
     const ticketId = req.params.id;
@@ -15,10 +16,19 @@ async function replyTicket(req, res) {
         }
 
         const ticketResult = await pool.query(
-            `SELECT id FROM tickets
-             WHERE id = $1 AND company_id = $2`,
-            [ticketId, companyId]
-        );
+    `SELECT 
+        t.id,
+        t.subject,
+        c.name AS customer_name,
+        c.email AS customer_email
+     FROM tickets t
+     JOIN customers c
+        ON c.id = t.customer_id
+        AND c.company_id = t.company_id
+     WHERE t.id = $1
+       AND t.company_id = $2`,
+    [ticketId, companyId]
+);
 
         if (ticketResult.rows.length === 0) {
             return res.status(404).json({
@@ -72,6 +82,42 @@ async function replyTicket(req, res) {
                 message: newMessage
             }
         );
+        // Send email notification to the customer.
+const ticket = ticketResult.rows[0];
+
+if (ticket.customer_email) {
+    try {
+        const emailSent = await sendMail(
+            ticket.customer_email,
+            `New Reply on Your Ticket - ResolveHQ`,
+            `
+            <h2>New Reply on Your Support Ticket</h2>
+
+            <p>Hi ${ticket.customer_name},</p>
+
+            <p>Our support team has replied to your ticket:</p>
+
+            <p><strong>${ticket.subject}</strong></p>
+
+            <p><strong>Reply:</strong></p>
+
+            <p>${messages}</p>
+
+            <p>Please log in to your ResolveHQ Customer Portal
+            to view the conversation.</p>
+
+            <p>Thank you,<br>ResolveHQ Support Team</p>
+            `
+        );
+
+        if (!emailSent) {
+            console.error("Customer reply email could not be sent.");
+        }
+
+    } catch (mailError) {
+        console.error("Customer reply email failed:", mailError);
+    }
+}
 
         return res.status(201).json({
             message: "Reply Added Successfully",
