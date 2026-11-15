@@ -17,6 +17,28 @@ const faqRoutes = require("./routes/faq.routes");
 
 const app = express();
 
+// Health Check Endpoint
+app.get("/health", async (req, res) => {
+  try {
+    await require("./db/pool").query("SELECT 1");
+
+    res.status(200).json({
+      success: true,
+      message: "ResolveHQ backend is healthy",
+      database: "Connected",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Health Check Failed:", error);
+
+    res.status(503).json({
+      success: false,
+      message: "ResolveHQ backend is running but database is unavailable",
+      database: "Disconnected",
+    });
+  }
+});
+
 const allowedOrigins = [
   "http://localhost:5173",
   "https://resolve-hq-one.vercel.app",
