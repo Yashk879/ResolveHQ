@@ -112,7 +112,7 @@ async function customerLogin(req,res){
         res.cookie("customer_token",token,{
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             maxAge:60*60*1000
         });
  
@@ -141,7 +141,7 @@ async function customerLogout(req,res){
         res.clearCookie("customer_token",{
             httpOnly:true,
             secure:process.env.NODE_ENV==="production",
-            sameSite:"lax"
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
         })
 
         return res.status(200).json({
