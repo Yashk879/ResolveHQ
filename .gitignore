@@ -8,4 +8,6 @@
 
 # Build outputs
 dist/
-**/dist/
+**/dist/
+
+resolveHQ_backup.dump

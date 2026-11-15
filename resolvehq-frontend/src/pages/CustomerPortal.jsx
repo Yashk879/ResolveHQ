@@ -135,194 +135,182 @@ export default function CustomerPortal() {
       <div className="content" style={{ maxWidth: 800, margin: "0 auto" }}>
 
         {/* Knowledge Base */}
-        
-{/* Modern Knowledge Base */}
-<section className="kb-section">
-  <div className="kb-hero">
-    <div className="kb-hero-content">
-      <span className="kb-eyebrow">ResolveHQ Help Center</span>
-      <h1>How can we help you?</h1>
-      {/* <p>
+
+        {/* Modern Knowledge Base */}
+        <section className="kb-section">
+          <div className="kb-hero">
+            <div className="kb-hero-content">
+              <span className="kb-eyebrow">ResolveHQ Help Center</span>
+              <h1>How can we help you?</h1>
+              {/* <p>
         Find answers, explore helpful guides, and get support whenever you need it.
       </p> */}
 
-      <div className="kb-search">
-        <span className="kb-search-icon">⌕</span>
-        <input
-          type="text"
-          placeholder="Search for answers..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {search && (
-          <button
-            type="button"
-            className="kb-clear"
-            onClick={() => setSearch("")}
-          >
-            Clear
-          </button>
-        )}
-      </div>
-
-      <span className="kb-hint">
-        Search questions and answers to find what you're looking for.
-      </span>
-    </div>
-    <div className="kb-hero-decoration" aria-hidden="true">
-      <div className="kb-decoration-circle kb-circle-one" />
-      <div className="kb-decoration-circle kb-circle-two" />
-      <div className="kb-decoration-card">
-        <span>✦</span>
-        <strong>Help is here.</strong>
-        {/* <small>Explore our knowledge base</small> */}
-      </div>
-    </div>
-  </div>
-
-  <div className="kb-content">
-    <div className="kb-heading-row">
-      <div>
-        <span className="kb-eyebrow kb-eyebrow-blue">FAQs</span>
-        <h2>Frequently Asked Questions</h2>
-        <p>Browse topics or search for a specific answer.</p>
-      </div>
-      <span className="kb-count">
-        {filteredFaqs.length} {filteredFaqs.length === 1 ? "article" : "articles"}
-      </span>
-    </div>
-
-    <div className="kb-categories">
-      <button
-        type="button"
-        className={`kb-category ${category === "" ? "active" : ""}`}
-        onClick={() => setCategory("")}
-      >
-        All topics
-      </button>
-
-      {categories.map((item) => (
-        <button
-          type="button"
-          key={item}
-          className={`kb-category ${category === item ? "active" : ""}`}
-          onClick={() => setCategory(category === item ? "" : item)}
-        >
-          {item}
-        </button>
-      ))}
-    </div>
-
-    <div className="kb-faq-list">
-      {faqLoading && (
-        <div className="kb-state">
-          <Loading label="Finding helpful answers..." />
-        </div>
-      )}
-
-      {faqError && (
-        <div className="kb-state kb-error">{faqError}</div>
-      )}
-
-      {!faqLoading && !faqError && filteredFaqs.length === 0 && (
-        <div className="kb-empty">
-          <div className="kb-empty-icon">⌕</div>
-          <h3>No answers found</h3>
-          <p>Try another search term or choose a different topic.</p>
-          <button
-            type="button"
-            className="kb-reset"
-            onClick={() => {
-              setSearch("");
-              setCategory("");
-            }}
-          >
-            Clear filters
-          </button>
-        </div>
-      )}
-
-      {!faqLoading && !faqError && filteredFaqs.map((faq) => {
-        const isExpanded = expandedFaq === faq.id;
-
-        return (
-          <article
-            className={`kb-faq-card ${isExpanded ? "expanded" : ""}`}
-            key={faq.id}
-          >
-            <button
-              type="button"
-              className="kb-question"
-              aria-expanded={isExpanded}
-              onClick={() =>
-                setExpandedFaq(isExpanded ? null : faq.id)
-              }
-            >
-              <span className="kb-question-left">
-                <span className="kb-question-icon">Q</span>
-                <span className="kb-question-text">
-                  <strong>{faq.question}</strong>
-                  {faq.category && (
-                    <small>{faq.category}</small>
-                  )}
-                </span>
-              </span>
-
-              <span className={`kb-chevron ${isExpanded ? "rotated" : ""}`}>
-                ›
-              </span>
-            </button>
-
-            {isExpanded && (
-              <div className="kb-answer">
-                <div className="kb-answer-label">ANSWER</div>
-                <p>{faq.answer}</p>
+              <div className="kb-search">
+                <span className="kb-search-icon">⌕</span>
+                <input
+                  type="text"
+                  placeholder="Search for answers..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                {search && (
+                  <button
+                    type="button"
+                    className="kb-clear"
+                    onClick={() => setSearch("")}
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
-            )}
-          </article>
-        );
-      })}
-    </div>
 
-    <div className="kb-contact">
-      <div className="kb-contact-icon">?</div>
-      <div className="kb-contact-copy">
-        <strong>Didn't find what you were looking for?</strong>
-        <p>Our support team is ready to help you resolve the issue.</p>
-      </div>
-      <button
-        type="button"
-        className="kb-contact-button"
-        onClick={() => {
-          setShowForm(true);
-          document.querySelector(".kb-contact")?.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-          });
-        }}
-      >
-        Raise a ticket <span>→</span>
-      </button>
-    </div>
-  </div>
-</section>
+              <span className="kb-hint">
+                Search questions and answers to find what you're looking for.
+              </span>
+            </div>
+            <div className="kb-hero-decoration" aria-hidden="true">
+              <div className="kb-decoration-circle kb-circle-one" />
+              <div className="kb-decoration-circle kb-circle-two" />
+              <div className="kb-decoration-card">
+                <span>✦ Support</span>
+                {/* <strong>Help is here.</strong> */}
+                {/* <small>Explore our knowledge base</small> */}
+              </div>
+            </div>
+          </div>
+
+          <div className="kb-content">
+            <div className="kb-heading-row">
+              <div>
+                <span className="kb-eyebrow kb-eyebrow-blue">FAQs</span>
+                <h2>Frequently Asked Questions</h2>
+                <p>Browse topics or search for a specific answer.</p>
+              </div>
+              <span className="kb-count">
+                {filteredFaqs.length} {filteredFaqs.length === 1 ? "article" : "articles"}
+              </span>
+            </div>
+
+            <div className="kb-categories">
+              <button
+                type="button"
+                className={`kb-category ${category === "" ? "active" : ""}`}
+                onClick={() => setCategory("")}
+              >
+                All topics
+              </button>
+
+              {categories.map((item) => (
+                <button
+                  type="button"
+                  key={item}
+                  className={`kb-category ${category === item ? "active" : ""}`}
+                  onClick={() => setCategory(category === item ? "" : item)}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
+
+            <div className="kb-faq-list">
+              {faqLoading && (
+                <div className="kb-state">
+                  <Loading label="Finding helpful answers..." />
+                </div>
+              )}
+
+              {faqError && (
+                <div className="kb-state kb-error">{faqError}</div>
+              )}
+
+              {!faqLoading && !faqError && filteredFaqs.length === 0 && (
+                <div className="kb-empty">
+                  <div className="kb-empty-icon">⌕</div>
+                  <h3>No answers found</h3>
+                  <p>Try another search term or choose a different topic.</p>
+                  <button
+                    type="button"
+                    className="kb-reset"
+                    onClick={() => {
+                      setSearch("");
+                      setCategory("");
+                    }}
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              )}
+
+              {!faqLoading && !faqError && filteredFaqs.map((faq) => {
+                const isExpanded = expandedFaq === faq.id;
+
+                return (
+                  <article
+                    className={`kb-faq-card ${isExpanded ? "expanded" : ""}`}
+                    key={faq.id}
+                  >
+                    <button
+                      type="button"
+                      className="kb-question"
+                      aria-expanded={isExpanded}
+                      onClick={() =>
+                        setExpandedFaq(isExpanded ? null : faq.id)
+                      }
+                    >
+                      <span className="kb-question-left">
+                        <span className="kb-question-icon">Q</span>
+                        <span className="kb-question-text">
+                          <strong>{faq.question}</strong>
+                          {faq.category && (
+                            <small>{faq.category}</small>
+                          )}
+                        </span>
+                      </span>
+
+                      <span className={`kb-chevron ${isExpanded ? "rotated" : ""}`}>
+                        ›
+                      </span>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="kb-answer">
+                        <div className="kb-answer-label">ANSWER</div>
+                        <p>{faq.answer}</p>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+
+            <div className="kb-contact">
+              <div className="kb-contact-icon">?</div>
+              <div className="kb-contact-copy">
+                <strong>Didn't find what you were looking for?</strong>
+                <p>Our support team is ready to help you resolve the issue.</p>
+              </div>
+              <button
+                type="button"
+                className="kb-contact-button"
+                onClick={() => {
+                  setShowForm(true);
+                  document.querySelector(".kb-contact")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                  });
+                }}
+              >
+                Raise a ticket <span>→</span>
+              </button>
+            </div>
+          </div>
+        </section>
 
 
         {/* My Tickets */}
-        <div style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "var(--space-5)"
-        }}>
+        <div style={{ marginBottom: "var(--space-5)" }}>
           <h2>My tickets</h2>
-
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowForm((v) => !v)}
-          >
-            {showForm ? "Cancel" : "Raise a ticket"}
-          </button>
         </div>
 
         {showForm && (
