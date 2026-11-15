@@ -93,7 +93,7 @@ flowchart TB
     end
 
     DB[(PostgreSQL)]
-    Gmail[(Gmail SMTP)]
+    Resend Email API
 
     AgentApp -- HTTP/REST + cookie --> Routes
     CustomerApp -- HTTP/REST + cookie --> Routes
@@ -104,7 +104,7 @@ flowchart TB
 
     Routes --> MW --> Controllers
     Controllers --> DB
-    Controllers --> Mailer --> Gmail
+    Controllers --> Resend Email API
     Controllers -. emit event .-> SocketServer
 ```
 
