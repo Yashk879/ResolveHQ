@@ -434,38 +434,54 @@ catch(err){
 }
     }
 
-async function getTicket(req,res){
+async function getTicket(req, res) {
+    const ticketId = req.params.id;
+    const companyId = req.user.companyId;
+    const agentId = req.user.agentId;
+    const role = req.user.role;
 
-    const ticketId=req.params.id;
+    try {
+        let result;
 
-    const companyId=req.user.companyId
+        if (role === "admin") {
+            result = await pool.query(
+                `SELECT
+                    id, company_id, customer_id, assigned_agent_id,
+                    subject, description, status, priority,
+                    created_at, updated_at
+                 FROM tickets
+                 WHERE id=$1 AND company_id=$2`,
+                [ticketId, companyId]
+            );
+        } else {
+            result = await pool.query(
+                `SELECT
+                    id, company_id, customer_id, assigned_agent_id,
+                    subject, description, status, priority,
+                    created_at, updated_at
+                 FROM tickets
+                 WHERE id=$1
+                 AND company_id=$2
+                 AND assigned_agent_id=$3`,
+                [ticketId, companyId, agentId]
+            );
+        }
 
-    try{
-        const result=await pool.query(
-            `select
-            id,company_id,customer_id,assigned_agent_id,subject,description,status,priority,created_at,updated_at
-            from tickets
-            where id=$1
-            and company_id=$2`,
-            [ticketId,companyId]
-        );
-
-        if(result.rows.length==0){
+        if (result.rows.length === 0) {
             return res.status(404).json({
-                message:"Ticket Not Found"
+                message: "Ticket Not Found"
             });
         }
 
         return res.status(200).json({
-            ticket:result.rows[0]
-        })
-    }
+            ticket: result.rows[0]
+        });
 
-    catch(err){
+    } catch (err) {
         console.error(err);
 
         return res.status(500).json({
-            message:"Internal Server Error"
+            message: "Internal Server Error"
         });
     }
 }

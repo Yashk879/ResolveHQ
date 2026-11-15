@@ -6,8 +6,6 @@ const bcrypt=require("bcrypt");
 
 const crypto=require("crypto")
 
-const nodemailer=require("nodemailer")
-
 const {sendMail}=require("../utils/mailer")
 
 async function login(req,res){
