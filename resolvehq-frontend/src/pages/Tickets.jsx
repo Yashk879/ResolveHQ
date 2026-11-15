@@ -6,7 +6,7 @@ import Loading from "../components/Loading.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
-const PRIORITY_OPTIONS = ["low", "medium", "high"];
+const PRIORITY_OPTIONS = ["low", "medium", "high", "urgent"];
 const PAGE_SIZE = 10;
 
 export default function Tickets() {
