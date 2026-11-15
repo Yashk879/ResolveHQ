@@ -667,17 +667,6 @@ Frontend route protection is used for navigation and user experience, while actu
 
 ResolveHQ is deployed and functional, but there are areas that can be improved further.
 
-### Current Limitations
-
-- No comprehensive automated test suite yet.
-- No CI/CD pipeline for automated testing.
-- Automatic SLA breach detection requires further verification.
-- Cross-company isolation requires additional adversarial testing.
-- Email delivery to arbitrary recipients requires a verified Resend domain.
-- No ticket attachment support yet.
-- No dedicated production error-tracking or observability platform.
-- Database schema changes are managed through SQL files and manual migrations.
-
 ### Planned Improvements
 
 - Automated integration tests for authentication and tenant isolation.
@@ -686,8 +675,7 @@ ResolveHQ is deployed and functional, but there are areas that can be improved f
 - Production-ready email delivery with a verified domain.
 - Ticket attachments.
 - Advanced analytics and reporting.
-- Structured logging and error monitoring.
-
+  
 ---
 
 ## Engineering Concepts Demonstrated
@@ -746,5 +734,3 @@ B.Tech – Computer Science and Engineering
 Available for educational and portfolio purposes. Licensing terms may be updated as the project evolves.
 
 ---
-
-⭐ If you find this project interesting, consider giving the repository a star!
