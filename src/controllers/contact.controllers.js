@@ -22,9 +22,10 @@ async function contactMail(req,res){
             <p><strong>Message:</strong><p>${message}</p></p>`;
 
     await sendMail(
-        process.env.GMAIL_USER,
-        `ResolveHQ Contact: ${subject}`,html
-    );
+    "yashk090909@gmail.com",
+    `ResolveHQ Contact: ${subject}`,
+    html
+);
 
     return res.status(200).json({
         message:"Message Sent Succesfully"
