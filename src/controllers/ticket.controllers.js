@@ -11,6 +11,12 @@ async function createTicket(req,res){
     
     const agentId=req.user.agentId;
 
+    console.log("Ticket creation context:", {
+    companyId,
+    agentId,
+    requestedPriority: priority
+});
+
     try{
         if(!customerId || !subject || !description){
             return res.status(400).json({
@@ -29,6 +35,7 @@ async function createTicket(req,res){
         );
 
         const newTicket = result.rows[0];
+        console.log("Saved ticket priority:", newTicket.priority);
         const sla = await applySlaToTicket(
             newTicket.id,
             companyId,
