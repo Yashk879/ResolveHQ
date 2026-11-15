@@ -109,16 +109,20 @@ export default function CustomerPortal() {
           ResolveHQ Support
         </Link>
 
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-4)",
-          marginLeft: "auto"
-        }}>
-          <span style={{
-            color: "var(--color-slate-muted)",
-            fontSize: 13
-          }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-4)",
+            marginLeft: "auto"
+          }}
+        >
+          <span
+            style={{
+              color: "var(--color-slate-muted)",
+              fontSize: 13
+            }}
+          >
             {customer?.name}
           </span>
 
@@ -133,27 +137,25 @@ export default function CustomerPortal() {
       </header>
 
       <div className="content" style={{ maxWidth: 800, margin: "0 auto" }}>
-
         {/* Knowledge Base */}
 
-        {/* Modern Knowledge Base */}
         <section className="kb-section">
           <div className="kb-hero">
             <div className="kb-hero-content">
               <span className="kb-eyebrow">ResolveHQ Help Center</span>
+
               <h1>How can we help you?</h1>
-              {/* <p>
-        Find answers, explore helpful guides, and get support whenever you need it.
-      </p> */}
 
               <div className="kb-search">
                 <span className="kb-search-icon">⌕</span>
+
                 <input
                   type="text"
                   placeholder="Search for answers..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
+
                 {search && (
                   <button
                     type="button"
@@ -169,13 +171,13 @@ export default function CustomerPortal() {
                 Search questions and answers to find what you're looking for.
               </span>
             </div>
+
             <div className="kb-hero-decoration" aria-hidden="true">
               <div className="kb-decoration-circle kb-circle-one" />
               <div className="kb-decoration-circle kb-circle-two" />
+
               <div className="kb-decoration-card">
                 <span>✦ Support</span>
-                {/* <strong>Help is here.</strong> */}
-                {/* <small>Explore our knowledge base</small> */}
               </div>
             </div>
           </div>
@@ -187,8 +189,10 @@ export default function CustomerPortal() {
                 <h2>Frequently Asked Questions</h2>
                 <p>Browse topics or search for a specific answer.</p>
               </div>
+
               <span className="kb-count">
-                {filteredFaqs.length} {filteredFaqs.length === 1 ? "article" : "articles"}
+                {filteredFaqs.length}{" "}
+                {filteredFaqs.length === 1 ? "article" : "articles"}
               </span>
             </div>
 
@@ -205,8 +209,12 @@ export default function CustomerPortal() {
                 <button
                   type="button"
                   key={item}
-                  className={`kb-category ${category === item ? "active" : ""}`}
-                  onClick={() => setCategory(category === item ? "" : item)}
+                  className={`kb-category ${
+                    category === item ? "active" : ""
+                  }`}
+                  onClick={() =>
+                    setCategory(category === item ? "" : item)
+                  }
                 >
                   {item}
                 </button>
@@ -228,7 +236,10 @@ export default function CustomerPortal() {
                 <div className="kb-empty">
                   <div className="kb-empty-icon">⌕</div>
                   <h3>No answers found</h3>
-                  <p>Try another search term or choose a different topic.</p>
+                  <p>
+                    Try another search term or choose a different topic.
+                  </p>
+
                   <button
                     type="button"
                     className="kb-reset"
@@ -242,59 +253,74 @@ export default function CustomerPortal() {
                 </div>
               )}
 
-              {!faqLoading && !faqError && filteredFaqs.map((faq) => {
-                const isExpanded = expandedFaq === faq.id;
+              {!faqLoading &&
+                !faqError &&
+                filteredFaqs.map((faq) => {
+                  const isExpanded = expandedFaq === faq.id;
 
-                return (
-                  <article
-                    className={`kb-faq-card ${isExpanded ? "expanded" : ""}`}
-                    key={faq.id}
-                  >
-                    <button
-                      type="button"
-                      className="kb-question"
-                      aria-expanded={isExpanded}
-                      onClick={() =>
-                        setExpandedFaq(isExpanded ? null : faq.id)
-                      }
+                  return (
+                    <article
+                      className={`kb-faq-card ${
+                        isExpanded ? "expanded" : ""
+                      }`}
+                      key={faq.id}
                     >
-                      <span className="kb-question-left">
-                        <span className="kb-question-icon">Q</span>
-                        <span className="kb-question-text">
-                          <strong>{faq.question}</strong>
-                          {faq.category && (
-                            <small>{faq.category}</small>
-                          )}
+                      <button
+                        type="button"
+                        className="kb-question"
+                        aria-expanded={isExpanded}
+                        onClick={() =>
+                          setExpandedFaq(isExpanded ? null : faq.id)
+                        }
+                      >
+                        <span className="kb-question-left">
+                          <span className="kb-question-icon">Q</span>
+
+                          <span className="kb-question-text">
+                            <strong>{faq.question}</strong>
+
+                            {faq.category && (
+                              <small>{faq.category}</small>
+                            )}
+                          </span>
                         </span>
-                      </span>
 
-                      <span className={`kb-chevron ${isExpanded ? "rotated" : ""}`}>
-                        ›
-                      </span>
-                    </button>
+                        <span
+                          className={`kb-chevron ${
+                            isExpanded ? "rotated" : ""
+                          }`}
+                        >
+                          ›
+                        </span>
+                      </button>
 
-                    {isExpanded && (
-                      <div className="kb-answer">
-                        <div className="kb-answer-label">ANSWER</div>
-                        <p>{faq.answer}</p>
-                      </div>
-                    )}
-                  </article>
-                );
-              })}
+                      {isExpanded && (
+                        <div className="kb-answer">
+                          <div className="kb-answer-label">ANSWER</div>
+                          <p>{faq.answer}</p>
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
             </div>
 
             <div className="kb-contact">
               <div className="kb-contact-icon">?</div>
+
               <div className="kb-contact-copy">
                 <strong>Didn't find what you were looking for?</strong>
-                <p>Our support team is ready to help you resolve the issue.</p>
+                <p>
+                  Our support team is ready to help you resolve the issue.
+                </p>
               </div>
+
               <button
                 type="button"
                 className="kb-contact-button"
                 onClick={() => {
                   setShowForm(true);
+
                   document.querySelector(".kb-contact")?.scrollIntoView({
                     behavior: "smooth",
                     block: "center"
@@ -307,18 +333,27 @@ export default function CustomerPortal() {
           </div>
         </section>
 
-
         {/* My Tickets */}
+
         <div style={{ marginBottom: "var(--space-5)" }}>
           <h2>My tickets</h2>
         </div>
 
+        {!showForm && (
+          <button
+            type="button"
+            className="btn btn-primary"
+            style={{ marginBottom: "var(--space-4)" }}
+            onClick={() => setShowForm(true)}
+          >
+            Raise a ticket
+          </button>
+        )}
+
         {showForm && (
           <NewTicketPanel
-            onCreated={() => {
-              setShowForm(false);
-              load();
-            }}
+            onCreated={load}
+            onClose={() => setShowForm(false)}
           />
         )}
 
@@ -337,6 +372,7 @@ export default function CustomerPortal() {
                 <table>
                   <thead>
                     <tr>
+                      <th>Ticket ID</th>
                       <th>Subject</th>
                       <th>Status</th>
                       <th>Priority</th>
@@ -347,14 +383,29 @@ export default function CustomerPortal() {
                   <tbody>
                     {tickets.map((t) => (
                       <tr key={t.id}>
+                        <td className="mono">
+                          <Link to={`/customer/portal/tickets/${t.id}`}>
+                            #{t.id}
+                          </Link>
+                        </td>
+
                         <td>
                           <Link to={`/customer/portal/tickets/${t.id}`}>
                             {t.subject}
                           </Link>
                         </td>
-                        <td><StatusBadge status={t.status} /></td>
-                        <td><PriorityBadge priority={t.priority} /></td>
-                        <td className="mono">{formatDate(t.created_at)}</td>
+
+                        <td>
+                          <StatusBadge status={t.status} />
+                        </td>
+
+                        <td>
+                          <PriorityBadge priority={t.priority} />
+                        </td>
+
+                        <td className="mono">
+                          {formatDate(t.created_at)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -368,17 +419,18 @@ export default function CustomerPortal() {
   );
 }
 
-function NewTicketPanel({ onCreated }) {
+function NewTicketPanel({ onCreated, onClose }) {
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [createdTicket, setCreatedTicket] = useState(null);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
-    if (!subject || !description) {
+    if (!subject.trim() || !description.trim()) {
       setError("Subject and description are required.");
       return;
     }
@@ -386,15 +438,89 @@ function NewTicketPanel({ onCreated }) {
     setSubmitting(true);
 
     try {
-      await createOwnTicket({ subject, description });
-      onCreated();
+      const res = await createOwnTicket({
+        subject: subject.trim(),
+        description: description.trim()
+      });
+
+      const data = res.data;
+
+      const ticket =
+        data.ticket ||
+        data.data?.ticket ||
+        data.data ||
+        data;
+
+      if (!ticket.id) {
+        throw new Error(
+          "Ticket was created, but the server did not return its ID."
+        );
+      }
+
+      setCreatedTicket(ticket);
+
+      await onCreated();
     } catch (err) {
       setError(
-        err.response?.data?.message || "Couldn't submit your ticket."
+        err.response?.data?.message ||
+          err.message ||
+          "Couldn't submit your ticket."
       );
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (createdTicket) {
+    return (
+      <div
+        className="panel"
+        style={{
+          padding: "var(--space-5)",
+          marginBottom: "var(--space-4)"
+        }}
+      >
+        <h2>Ticket submitted successfully!</h2>
+
+        <p>
+          Your ticket ID is:
+          <strong style={{ marginLeft: 8 }}>
+            #{createdTicket.id}
+          </strong>
+        </p>
+
+        <p>
+          Subject: {createdTicket.subject || subject}
+        </p>
+
+        <p>
+          You can use this ticket ID to track your support request.
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-3)",
+            flexWrap: "wrap"
+          }}
+        >
+          <Link
+            className="btn btn-primary"
+            to={`/customer/portal/tickets/${createdTicket.id}`}
+          >
+            View ticket
+          </Link>
+
+          <button
+            type="button"
+            className="btn"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -405,11 +531,14 @@ function NewTicketPanel({ onCreated }) {
         marginBottom: "var(--space-4)"
       }}
     >
-      <h2 style={{ marginBottom: "var(--space-4)" }}>Raise a ticket</h2>
+      <h2 style={{ marginBottom: "var(--space-4)" }}>
+        Raise a ticket
+      </h2>
 
       <form onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="subject">Subject</label>
+
           <input
             id="subject"
             value={subject}
@@ -419,6 +548,7 @@ function NewTicketPanel({ onCreated }) {
 
         <div className="field">
           <label htmlFor="description">Describe the issue</label>
+
           <textarea
             id="description"
             rows={4}
@@ -428,18 +558,37 @@ function NewTicketPanel({ onCreated }) {
         </div>
 
         {error && (
-          <p className="error-text" style={{ marginBottom: "var(--space-4)" }}>
+          <p
+            className="error-text"
+            style={{ marginBottom: "var(--space-4)" }}
+          >
             {error}
           </p>
         )}
 
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={submitting}
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-3)"
+          }}
         >
-          {submitting ? "Submitting..." : "Submit ticket"}
-        </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit ticket"}
+          </button>
+
+          <button
+            type="button"
+            className="btn"
+            onClick={onClose}
+            disabled={submitting}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </div>
   );
