@@ -7,24 +7,45 @@ async function applySlaToTicket(
     priority,
     db = pool
 ) {
-    // 1. Find the company's SLA policy.
+    // 1. Check the database connection.
+    const dbInfo = await db.query(`
+        SELECT
+            current_database() AS database,
+            current_user AS db_user,
+            inet_server_addr() AS server_address
+    `);
+
+    console.log("SLA database connection:", dbInfo.rows[0]);
+
+    console.log("SLA lookup parameters:", {
+        companyId,
+        priority
+    });
+
+    // 2. Find the company's SLA policy.
     const policyResult = await db.query(
-        `SELECT first_response_minutes, resolution_minutes
+        `SELECT
+            company_id,
+            priority,
+            first_response_minutes,
+            resolution_minutes
          FROM sla_policies
          WHERE company_id = $1
          AND priority = $2`,
         [companyId, priority]
     );
 
+    console.log("SLA policy lookup result:", policyResult.rows);
+
     if (policyResult.rows.length === 0) {
         throw new Error(
-            `No SLA policy found for priority: ${priority}`
+            `No SLA policy found for company ${companyId} and priority ${priority}`
         );
     }
 
     const policy = policyResult.rows[0];
 
-    // 2. Recalculate applicable deadlines.
+    // 3. Update ticket SLA deadlines.
     const result = await db.query(
         `UPDATE tickets
          SET
@@ -45,12 +66,13 @@ async function applySlaToTicket(
          WHERE id = $1
          AND company_id = $2
 
-         RETURNING id,
-                   first_response_due_at,
-                   first_responded_at,
-                   first_response_sla_status,
-                   resolution_due_at,
-                   resolution_sla_status`,
+         RETURNING
+            id,
+            first_response_due_at,
+            first_responded_at,
+            first_response_sla_status,
+            resolution_due_at,
+            resolution_sla_status`,
         [
             ticketId,
             companyId,
@@ -60,7 +82,9 @@ async function applySlaToTicket(
     );
 
     if (result.rows.length === 0) {
-        throw new Error("Ticket not found for this company");
+        throw new Error(
+            `Ticket ${ticketId} not found for company ${companyId}`
+        );
     }
 
     return result.rows[0];
