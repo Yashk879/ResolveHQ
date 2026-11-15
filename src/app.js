@@ -19,7 +19,8 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  process.env.FRONTEND_URL?.trim().replace(/\/$/, ""),
+  "https://resolve-hq-one.vercel.app",
+  process.env.FRONTEND_URL?.trim().replace(/\/+$/, ""),
 ].filter(Boolean);
 
 app.use(
