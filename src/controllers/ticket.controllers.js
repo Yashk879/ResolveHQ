@@ -480,8 +480,8 @@ async function updateTicket(req, res) {
     ];
 
     const validPriority = [
-        "low", "medium", "high"
-    ];
+    "low", "medium", "high", "urgent"
+];
 
     if (status && !validStatus.includes(status)) {
         return res.status(400).json({
