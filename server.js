@@ -15,9 +15,11 @@ const PORT = process.env.PORT || 3000;
 
 pool.query(
     `SELECT
-        current_database() AS database_name,
-        current_schema() AS schema_name,
-        (SELECT COUNT(*) FROM public.companies) AS company_count`,
+    current_database() AS database_name,
+    current_schema() AS schema_name,
+    current_user AS database_user,
+    current_setting('neon.branch_id', true) AS branch_id,
+    (SELECT COUNT(*) FROM public.companies) AS company_count`,
     (err, result) => {
         if (err) {
             console.error("Database Connection Failed:", err);
