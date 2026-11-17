@@ -7,7 +7,7 @@ import { listAgents } from "../api/agents.js";
 import { StatusBadge, PriorityBadge } from "../components/Badges.jsx";
 import Loading from "../components/Loading.jsx";
 import { useToast } from "../context/ToastContext.jsx";
-import { socket } from "../socket.js";
+import { agentSocket } from "../socket.js";
 
 const STATUS_OPTIONS = ["open", "in_progress", "resolved", "closed"];
 const PRIORITY_OPTIONS = ["low", "medium", "high"];
@@ -66,16 +66,21 @@ export default function TicketDetails() {
   // have that message (e.g. our own reply already landed via the normal
   // load() call right after sending).
   useEffect(() => {
-    function handleNewMessage({ ticketId, message }) {
-      if (String(ticketId) !== String(id)) return;
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === message.id)) return prev;
-        return [...prev, message];
-      });
-    }
-    socket.on("ticket:message", handleNewMessage);
-    return () => socket.off("ticket:message", handleNewMessage);
-  }, [id]);
+  function handleNewMessage({ ticketId, message }) {
+    if (String(ticketId) !== String(id)) return;
+
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === message.id)) return prev;
+      return [...prev, message];
+    });
+  }
+
+  agentSocket.on("ticket:message", handleNewMessage);
+
+  return () => {
+    agentSocket.off("ticket:message", handleNewMessage);
+  };
+}, [id]);
 
   if (loading) return <div className="content"><Loading label="Loading ticket…" /></div>;
   if (notFound) return <div className="content"><p>Ticket not found.</p></div>;

@@ -1,4 +1,4 @@
-
+const pool = require("./db/pool");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 
@@ -25,6 +25,7 @@ function parseCookies(cookieHeader = "") {
   return cookies;
 }
 
+
 function authenticateSocket(socket, next) {
   try {
     if (!process.env.JWT_SECRET) {
@@ -32,10 +33,17 @@ function authenticateSocket(socket, next) {
     }
 
     const cookies = parseCookies(socket.handshake.headers.cookie);
+    const sessionType = socket.handshake.auth?.sessionType;
 
-    // Determine the session type from the cookie used.
-    const isAgent = Boolean(cookies.token);
-    const token = isAgent ? cookies.token : cookies.customer_token;
+    let token;
+
+    if (sessionType === "agent") {
+      token = cookies.token;
+    } else if (sessionType === "customer") {
+      token = cookies.customer_token;
+    } else {
+      return next(new Error("Invalid session type"));
+    }
 
     if (!token) {
       return next(new Error("Authentication required"));
@@ -47,7 +55,7 @@ function authenticateSocket(socket, next) {
       return next(new Error("Invalid authentication token"));
     }
 
-    if (isAgent) {
+    if (sessionType === "agent") {
       if (!decoded.agentId || !decoded.role) {
         return next(new Error("Invalid agent session"));
       }
@@ -59,10 +67,7 @@ function authenticateSocket(socket, next) {
         role: decoded.role,
       };
     } else {
-      if (
-        decoded.type !== "customer" ||
-        !decoded.customerId
-      ) {
+      if (decoded.type !== "customer" || !decoded.customerId) {
         return next(new Error("Invalid customer session"));
       }
 
@@ -78,6 +83,7 @@ function authenticateSocket(socket, next) {
     return next(new Error("Invalid or expired authentication token"));
   }
 }
+
 
 function initSocket(server) {
   const frontendUrl =
@@ -116,6 +122,38 @@ function initSocket(server) {
       socket.join(`company_${user.companyId}`);
     });
 
+       socket.on("join:ticket", async (ticketId) => {
+      try {
+        if (user.type !== "customer") return;
+        if (!ticketId) return;
+
+        const result = await pool.query(
+          `SELECT id
+           FROM tickets
+           WHERE id = $1
+           AND company_id = $2
+           AND customer_id = $3`,
+          [ticketId, user.companyId, user.customerId]
+        );
+
+        if (result.rows.length === 0) {
+          console.log("Unauthorized ticket room request:", {
+            customerId: user.customerId,
+            ticketId,
+          });
+          return;
+        }
+
+        socket.join(`ticket_${ticketId}`);
+
+        console.log(
+          `Customer ${user.customerId} joined ticket room: ${ticketId}`
+        );
+      } catch (error) {
+        console.error("Error joining ticket room:", error);
+      }
+    });
+
     socket.on("disconnect", () => {
       console.log("Socket disconnected:", socket.id);
     });
@@ -131,8 +169,14 @@ function getIO() {
 function emitTicketEvent(companyId, event, data) {
   if (!io || !companyId) return;
 
-  // Company-wide events are received only by authenticated agents.
+  // Send company-wide events to authenticated agents.
   io.to(`company_${companyId}`).emit(event, data);
+
+  // Also send ticket messages to the authorized customer
+  // who has joined that ticket's room.
+  if (event === "ticket:message" && data?.ticketId) {
+    io.to(`ticket_${data.ticketId}`).emit(event, data);
+  }
 }
 
 module.exports = {

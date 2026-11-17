@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import * as authApi from "../api/auth.js";
-import { connectSocket, disconnectSocket } from "../socket.js";
+import { connectAgentSocket, disconnectAgentSocket } from "../socket.js";
 
 const AuthContext = createContext(null);
 
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
       const normalized = normalizeFromMe(res.data.user);
       setAgent(normalized);
       setStatus("authenticated");
-      connectSocket(normalized.companyId);
+      connectAgentSocket();
     } catch {
       setAgent(null);
       setStatus("unauthenticated");
@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
     const normalized = normalizeFromLogin(res.data.agent);
     setAgent(normalized);
     setStatus("authenticated");
-    connectSocket(normalized.companyId);
+    connectAgentSocket();
     return res.data;
   }
 
@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
     } finally {
       setAgent(null);
       setStatus("unauthenticated");
-      disconnectSocket();
+      disconnectAgentSocket();
     }
   }
 

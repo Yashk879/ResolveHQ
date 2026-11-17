@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import * as customerAuthApi from "../api/customerAuth.js";
-import { connectSocket, disconnectSocket } from "../socket.js";
+import { connectCustomerSocket, disconnectCustomerSocket } from "../socket.js";
 
 const CustomerAuthContext = createContext(null);
 
@@ -26,7 +26,7 @@ export function CustomerAuthProvider({ children }) {
       const normalized = normalize(res.data.customer);
       setCustomer(normalized);
       setStatus("authenticated");
-      connectSocket(normalized.companyId);
+      connectCustomerSocket();
     } catch {
       setCustomer(null);
       setStatus("unauthenticated");
@@ -42,7 +42,7 @@ export function CustomerAuthProvider({ children }) {
     const normalized = normalize(res.data.customer);
     setCustomer(normalized);
     setStatus("authenticated");
-    connectSocket(normalized.companyId);
+    connectCustomerSocket();
     return res.data;
   }
 
@@ -52,7 +52,7 @@ export function CustomerAuthProvider({ children }) {
     } finally {
       setCustomer(null);
       setStatus("unauthenticated");
-      disconnectSocket();
+      disconnectCustomerSocket();
     }
   }
 

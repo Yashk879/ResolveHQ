@@ -4,7 +4,7 @@ import { useCustomerAuth } from "../context/CustomerAuthContext.jsx";
 import { getOwnTicket, getOwnTicketMessages, replyToOwnTicket } from "../api/customerPortal.js";
 import { StatusBadge, PriorityBadge } from "../components/Badges.jsx";
 import Loading from "../components/Loading.jsx";
-import { socket } from "../socket.js";
+import { customerSocket } from "../socket.js";
 
 function formatDateTime(iso) {
   if (!iso) return "—";
@@ -51,16 +51,32 @@ export default function CustomerTicketDetails() {
   // Live updates, same mechanism as the agent's ticket detail page —
   // see that file for the fuller explanation.
   useEffect(() => {
-    function handleNewMessage({ ticketId, message }) {
-      if (String(ticketId) !== String(id)) return;
-      setMessages((prev) => {
-        if (prev.some((m) => m.id === message.id)) return prev;
-        return [...prev, message];
-      });
-    }
-    socket.on("ticket:message", handleNewMessage);
-    return () => socket.off("ticket:message", handleNewMessage);
-  }, [id]);
+  function joinTicketRoom() {
+    customerSocket.emit("join:ticket", id);
+  }
+
+  function handleNewMessage({ ticketId, message }) {
+    if (String(ticketId) !== String(id)) return;
+
+    setMessages((prev) => {
+      if (prev.some((m) => m.id === message.id)) return prev;
+      return [...prev, message];
+    });
+  }
+
+  customerSocket.on("connect", joinTicketRoom);
+  customerSocket.on("ticket:message", handleNewMessage);
+
+  // Handle a socket that connected before this page mounted.
+  if (customerSocket.connected) {
+    joinTicketRoom();
+  }
+
+  return () => {
+    customerSocket.off("connect", joinTicketRoom);
+    customerSocket.off("ticket:message", handleNewMessage);
+  };
+}, [id]);
 
   async function handleLogout() {
     setLoggingOut(true);
